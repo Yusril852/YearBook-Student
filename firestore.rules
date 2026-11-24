@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // GANTI dengan email akun guru yang dibuat di Firebase Authentication.
+    function guru() {
+      return request.auth != null
+        && request.auth.token.email == 'ysril852@gmail.com';
+    }
+
+    function teks(k, n) {
+      let v = request.resource.data.get(k, '');
+      return v is string && v.size() <= n;
+    }
+
+    function dataValid() {
+      return teks('nama', 40) && teks('lengkap', 80) && teks('jk', 20)
+        && teks('tempat', 60) && teks('tgl', 10) && teks('alamat', 200)
+        && teks('hobi', 80) && teks('cita', 80) && teks('wa', 20)
+        && teks('ig', 40) && teks('tiktok', 40) && teks('ekskul', 300)
+        && teks('kata', 150) && teks('pesan', 500) && teks('foto', 250000);
+    }
+
+    function kunciBoleh() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'nama', 'lengkap', 'jk', 'tempat', 'tgl', 'alamat', 'hobi', 'cita',
+        'wa', 'ig', 'tiktok', 'ekskul', 'kata', 'pesan', 'foto',
+        'setuju', 'diisi', 'diubah'
+      ]);
+    }
+
+    // ID dokumen adalah kode rahasia murid, misalnya S05-K3M9XQ.
+    // Murid hanya bisa membuka dan mengubah dokumennya sendiri.
+    // Hanya guru yang bisa melihat daftar, membuat, dan menghapus dokumen.
+    match /profil/{kode} {
+      allow get: if request.auth != null;
+      allow list: if guru();
+      allow create, delete: if guru();
+      allow update: if guru()
+        || (request.auth != null && kunciBoleh() && dataValid());
+    }
+  }
+}

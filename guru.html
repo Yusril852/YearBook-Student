@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Dashboard Guru Yearbook 7F</title>
+<style>
+:root{--bg:#eef2f5;--surface:#fff;--fg:#14232e;--muted:#5b6b78;--accent:#0b6e75;--accent-fg:#fff;--line:#d3dce3;--hl:#e3f1f2;--err:#b3261e;--ok:#1b7a3d}
+@media (prefers-color-scheme:dark){:root{--bg:#0e171d;--surface:#17232b;--fg:#e6eef2;--muted:#93a4b0;--accent:#4cc3cb;--accent-fg:#06262a;--line:#27373f;--hl:#1c3138;--err:#ff8a80;--ok:#6fd48f;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 3rem max(16px,env(safe-area-inset-left));display:grid;gap:1.25rem}
+h1{font-size:1.6rem;margin:1rem 0 0;line-height:1.15}
+h2{font-size:1.1rem;margin:0}
+.kicker{margin:0;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem;display:grid;gap:.9rem}
+label{display:grid;gap:.3rem;font-weight:600;font-size:.92rem}
+label small{font-weight:400;color:var(--muted)}
+input,textarea,button{font:inherit}
+input[type=text],input[type=email],input[type=password],textarea{width:100%;padding:.6rem .75rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+textarea{min-height:7rem}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{padding:.6rem 1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);font-weight:600;cursor:pointer}
+.btn.sec{background:transparent;color:var(--accent)}
+.btn.kecil{padding:.25rem .6rem;font-size:.82rem;font-weight:500}
+.btn[disabled]{opacity:.55;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.msg{margin:0;font-size:.92rem;color:var(--muted)}
+.msg.err{color:var(--err)}
+.msg.ok{color:var(--ok);font-weight:600}
+.stat{display:flex;flex-wrap:wrap;gap:.5rem}
+.stat span{background:var(--hl);border-radius:999px;padding:.2rem .8rem;font-size:.9rem;font-weight:600}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);font-size:.92rem;vertical-align:middle}
+th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
+.ya{color:var(--ok);font-weight:600}
+.belum{color:var(--muted)}
+[hidden]{display:none!important}
+@media print{
+  body{background:#fff;color:#000}
+  main>*:not(#tabelWrap){display:none!important}
+  #tabelWrap{border:0;padding:0}
+  .aksi,.noprint{display:none!important}
+  table{min-width:0}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Kelas 7F 2026/2027</p>
+    <h1>Dashboard guru: profil buku tahunan</h1>
+  </header>
+
+  <div class="card" id="peringatan" hidden>Platform belum disiapkan. Isi <b>firebase-config.js</b> terlebih dahulu.</div>
+
+  <form class="card" id="login" hidden>
+    <h2>Masuk sebagai guru</h2>
+    <label for="em">Email <input id="em" type="email" autocomplete="username"></label>
+    <label for="pw">Kata sandi <input id="pw" type="password" autocomplete="current-password"></label>
+    <div class="row"><button class="btn" type="submit">Masuk</button></div>
+    <p class="msg" id="msgLogin" aria-live="polite"></p>
+  </form>
+
+  <div id="app" hidden style="display:grid;gap:1.25rem">
+    <section class="card noprint" id="buat" hidden>
+      <h2>1. Buat kode untuk 32 murid</h2>
+      <p class="msg">Tempel daftar nama lengkap murid, satu nama per baris, urut sesuai nomor absen. Boleh dikosongkan. Murid tetap bisa mengisi nama sendiri.</p>
+      <label for="daftar">Daftar nama <small>Baris ke-1 untuk No. absen 1, dan seterusnya.</small>
+        <textarea id="daftar" placeholder="Nama Murid 1&#10;Nama Murid 2"></textarea></label>
+      <div class="row"><button class="btn" id="btnBuat" type="button">Buat 32 kode</button></div>
+      <p class="msg" id="msgBuat" aria-live="polite"></p>
+    </section>
+
+    <section class="card noprint" id="ringkas" hidden>
+      <h2>Progres pengisian</h2>
+      <div class="stat" id="stat"></div>
+      <div class="row">
+        <button class="btn" id="btnData" type="button">Unduh data untuk yearbook</button>
+        <button class="btn sec" id="btnCsv" type="button">Unduh daftar kode (CSV)</button>
+        <button class="btn sec" id="btnCetak" type="button">Cetak daftar kode</button>
+        <button class="btn sec" id="btnMuat" type="button">Muat ulang</button>
+        <button class="btn sec" id="btnKeluar" type="button">Keluar</button>
+      </div>
+      <p class="msg" id="msgAksi" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="tabelWrap" hidden>
+      <h2>Daftar murid</h2>
+      <div class="tw">
+        <table>
+          <thead><tr><th>No</th><th>Nama</th><th>Status</th><th>Kode</th><th class="aksi">Tautan</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var cfg=window.FIREBASE_CONFIG;
+  if(!cfg||!cfg.apiKey||cfg.apiKey==="GANTI"||typeof firebase==="undefined"){$("peringatan").hidden=false;return;}
+  firebase.initializeApp(cfg);
+  var auth=firebase.auth(),db=firebase.firestore();
+  var rows=[];
+  var bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+  function p2(n){return n<10?"0"+n:""+n}
+  function pesan(e){
+    var c=e&&e.code;
+    if(c==="permission-denied")return "Akses ditolak. Pastikan email guru di firestore.rules sama dengan akun yang dipakai.";
+    if(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"||c==="auth/invalid-login-credentials")return "Email atau kata sandi salah.";
+    if(c==="auth/too-many-requests")return "Terlalu banyak percobaan. Tunggu sebentar.";
+    if(c==="unavailable"||c==="auth/network-request-failed")return "Tidak ada koneksi internet.";
+    return "Gagal. Coba lagi.";
+  }
+  function kodeBaru(no){
+    var a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",r=new Uint32Array(6),s="";
+    crypto.getRandomValues(r);
+    for(var i=0;i<6;i++)s+=a[r[i]%a.length];
+    return "S"+p2(no)+"-"+s;
+  }
+  function tautan(kode){return new URL("index.html?k="+kode,location.href).href;}
+  function unduh(nama,tipe,isi){
+    var b=new Blob([isi],{type:tipe}),a=document.createElement("a");
+    a.href=URL.createObjectURL(b);a.download=nama;document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+  }
+  function msg(id,t,cls){var e=$(id);e.textContent=t||"";e.className="msg"+(cls?" "+cls:"");}
+
+  $("login").addEventListener("submit",function(e){
+    e.preventDefault();msg("msgLogin","Masuk...");
+    auth.signInWithEmailAndPassword($("em").value.trim(),$("pw").value).catch(function(err){msg("msgLogin",pesan(err),"err");});
+  });
+  $("btnKeluar").addEventListener("click",function(){auth.signOut();});
+
+  auth.onAuthStateChanged(function(u){
+    var guru=!!u&&!u.isAnonymous;
+    $("login").hidden=guru;$("app").hidden=!guru;
+    if(guru)muat();
+  });
+
+  function muat(){
+    msg("msgAksi","Memuat data...");
+    db.collection("profil").orderBy("no").get().then(function(q){
+      rows=q.docs.map(function(d){var x=d.data();x._id=d.id;return x;});
+      msg("msgAksi","");
+      tampil();
+    }).catch(function(e){msg("msgAksi",pesan(e),"err");});
+  }
+
+  function tampil(){
+    var ada=rows.length>0;
+    $("buat").hidden=ada;$("ringkas").hidden=!ada;$("tabelWrap").hidden=!ada;
+    if(!ada)return;
+    var sudah=rows.filter(function(r){return r.diisi;}).length;
+    $("stat").innerHTML="";
+    [sudah+" sudah mengisi",(rows.length-sudah)+" belum",rows.length+" murid"].forEach(function(t){
+      var s=document.createElement("span");s.textContent=t;$("stat").appendChild(s);
+    });
+    var tb=$("tbody");tb.textContent="";
+    rows.forEach(function(r){
+      var tr=document.createElement("tr");
+      function td(t,c){var e=document.createElement("td");e.textContent=t;if(c)e.className=c;tr.appendChild(e);return e;}
+      td(p2(r.no));
+      td(r.nama||r.lengkap||"-");
+      td(r.diisi?"Sudah":"Belum",r.diisi?"ya":"belum");
+      td(r._id,"k");
+      var ta=document.createElement("td");ta.className="aksi";
+      var b=document.createElement("button");b.type="button";b.className="btn sec kecil";b.textContent="Salin tautan";
+      b.addEventListener("click",function(){
+        var u=tautan(r._id);
+        (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){b.textContent="Tersalin";setTimeout(function(){b.textContent="Salin tautan";},1500);},function(){window.prompt("Salin tautan ini:",u);});
+      });
+      ta.appendChild(b);
+      var g=document.createElement("button");g.type="button";g.className="btn sec kecil";g.textContent="Ganti kode";g.style.marginLeft=".4rem";
+      g.addEventListener("click",function(){gantiKode(r);});
+      ta.appendChild(g);
+      tr.appendChild(ta);
+      tb.appendChild(tr);
+    });
+  }
+
+  $("btnBuat").addEventListener("click",function(){
+    var nama=$("daftar").value.split(/\r?\n/).map(function(s){return s.trim();});
+    var batch=db.batch();
+    for(var no=1;no<=32;no++){
+      var lengkap=nama[no-1]||"";
+      var d={no:no,diisi:false,lengkap:lengkap,nama:lengkap.split(/\s+/)[0]||""};
+      batch.set(db.collection("profil").doc(kodeBaru(no)),d);
+    }
+    $("btnBuat").disabled=true;msg("msgBuat","Membuat kode...");
+    batch.commit().then(function(){$("btnBuat").disabled=false;msg("msgBuat","");muat();},function(e){$("btnBuat").disabled=false;msg("msgBuat",pesan(e),"err");});
+  });
+
+  function gantiKode(r){
+    if(!window.confirm("Ganti kode No. "+p2(r.no)+"? Kode lama tidak berlaku lagi. Data yang sudah diisi tetap dipindahkan."))return;
+    var data={};Object.keys(r).forEach(function(k){if(k!=="_id")data[k]=r[k];});
+    var baru=kodeBaru(r.no),b=db.batch();
+    b.set(db.collection("profil").doc(baru),data);
+    b.delete(db.collection("profil").doc(r._id));
+    b.commit().then(muat,function(e){msg("msgAksi",pesan(e),"err");});
+  }
+
+  function ttl(r){
+    var t=(r.tempat||"").trim(),m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(r.tgl||""),tg="";
+    if(m)tg=parseInt(m[3],10)+" "+bulan[parseInt(m[2],10)-1]+" "+m[1];
+    return t&&tg?t+", "+tg:(t||tg);
+  }
+
+  $("btnData").addEventListener("click",function(){
+    var out={versi:1,dibuat:new Date().toISOString(),siswa:rows.map(function(r){
+      return {
+        no:r.no,diisi:!!r.diisi,nama:r.nama||"",lengkap:r.lengkap||"",jk:r.jk||"",ttl:ttl(r),
+        alamat:r.alamat||"",hobi:r.hobi||"",cita:r.cita||"",wa:r.wa||"",ig:r.ig||"",tiktok:r.tiktok||"",
+        ekskul:(r.ekskul||"").split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean),
+        kata:r.kata||"",pesan:r.pesan||"",foto:r.foto||null
+      };
+    })};
+    unduh("yearbook-7F-data.json","application/json",JSON.stringify(out));
+    msg("msgAksi","File yearbook-7F-data.json terunduh. Impor file ini di halaman yearbook.","ok");
+  });
+
+  $("btnCsv").addEventListener("click",function(){
+    function c(v){return '"'+String(v).replace(/"/g,'""')+'"';}
+    var l=["No,Nama,Kode,Tautan"].concat(rows.map(function(r){return [r.no,c(r.nama||r.lengkap||""),r._id,c(tautan(r._id))].join(",");}));
+    unduh("kode-murid-7F.csv","text/csv",l.join("\r\n"));
+  });
+  $("btnCetak").addEventListener("click",function(){window.print();});
+  $("btnMuat").addEventListener("click",muat);
+})();
+</script>
+</body>
+</html>

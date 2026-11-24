@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil Buku Tahunan 7F</title>
+<style>
+:root{--bg:#eef2f5;--surface:#fff;--fg:#14232e;--muted:#5b6b78;--accent:#0b6e75;--accent-fg:#fff;--line:#d3dce3;--hl:#e3f1f2;--err:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#0e171d;--surface:#17232b;--fg:#e6eef2;--muted:#93a4b0;--accent:#4cc3cb;--accent-fg:#06262a;--line:#27373f;--hl:#1c3138;--err:#ff8a80;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 3rem max(16px,env(safe-area-inset-left));display:grid;gap:1.25rem}
+h1{font-size:1.7rem;line-height:1.15;margin:1rem 0 0}
+h2{font-size:1.1rem;margin:0 0 .25rem}
+.kicker{margin:0;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem;display:grid;gap:.9rem}
+label{display:grid;gap:.3rem;font-weight:600;font-size:.92rem}
+label small{font-weight:400;color:var(--muted)}
+input,select,textarea,button{font:inherit}
+input[type=text],input[type=date],select,textarea{width:100%;padding:.6rem .75rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+textarea{min-height:5rem;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{padding:.7rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);font-weight:600;cursor:pointer}
+.btn.sec{background:transparent;color:var(--accent)}
+.btn[disabled]{opacity:.55;cursor:default}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.foto{display:grid;grid-template-columns:120px 1fr;gap:1rem;align-items:start}
+.pv{aspect-ratio:2/3;width:120px;border:1px dashed var(--line);border-radius:6px;background:var(--hl);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);text-align:center}
+.pv img{width:100%;height:100%;object-fit:cover;display:block}
+.cek{display:flex;gap:.6rem;align-items:flex-start;font-weight:400;font-size:.92rem}
+.cek input{margin-top:.25rem;width:1.1rem;height:1.1rem;flex:none}
+.msg{margin:0;font-size:.92rem}
+.msg.err{color:var(--err)}
+.msg.ok{color:var(--accent);font-weight:600}
+.warn{background:var(--hl);border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem;font-size:.92rem}
+[hidden]{display:none!important}
+@media (max-width:480px){.row2{grid-template-columns:1fr}.foto{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Kelas 7F 2026/2027</p>
+    <h1>Isi profil buku tahunanmu</h1>
+  </header>
+
+  <div class="warn" id="peringatan" hidden>Platform belum disiapkan. Guru perlu mengisi <b>firebase-config.js</b> terlebih dahulu.</div>
+
+  <section class="card" id="masuk">
+    <div>
+      <h2>Masukkan kode profilmu</h2>
+      <p class="msg" style="color:var(--muted)">Kode dari wali kelas, contoh S05-K3M9XQ. Setiap murid punya kode sendiri. Jangan dibagikan ke teman.</p>
+    </div>
+    <label for="kode">Kode profil
+      <input id="kode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="S05-K3M9XQ" maxlength="10">
+    </label>
+    <button class="btn" id="btnMasuk" type="button">Buka profilku</button>
+    <p class="msg" id="msgMasuk" aria-live="polite"></p>
+  </section>
+
+  <form id="isi" class="card" hidden novalidate>
+    <div>
+      <h2 id="judulNo">Profilmu</h2>
+      <p class="msg" id="infoSudah" style="color:var(--muted)">Isi sesuai dirimu. Kamu bisa kembali dan mengubahnya dengan kode yang sama.</p>
+    </div>
+
+    <label for="f_lengkap">Nama lengkap <input id="f_lengkap" type="text" maxlength="80" autocomplete="off"></label>
+    <label for="f_nama">Nama panggilan <input id="f_nama" type="text" maxlength="40" autocomplete="off"></label>
+    <label for="f_jk">Jenis kelamin
+      <select id="f_jk"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select>
+    </label>
+    <div class="row2">
+      <label for="f_tempat">Tempat lahir <input id="f_tempat" type="text" maxlength="60" autocomplete="off"></label>
+      <label for="f_tgl">Tanggal lahir <input id="f_tgl" type="date"></label>
+    </div>
+    <label for="f_alamat">Alamat <small>Cukup sampai kelurahan atau kecamatan juga boleh.</small>
+      <textarea id="f_alamat" maxlength="200"></textarea>
+    </label>
+    <div class="row2">
+      <label for="f_hobi">Hobi <input id="f_hobi" type="text" maxlength="80" autocomplete="off"></label>
+      <label for="f_cita">Cita-cita <input id="f_cita" type="text" maxlength="80" autocomplete="off"></label>
+    </div>
+
+    <div>
+      <h2>Kontak dan media sosial <small style="font-weight:400;color:var(--muted)">(boleh dikosongkan)</small></h2>
+      <p class="msg" style="color:var(--muted)">Isi hanya yang kamu mau dilihat teman sekelas dan wali murid.</p>
+    </div>
+    <label for="f_wa">No. WhatsApp <input id="f_wa" type="text" inputmode="tel" maxlength="20" autocomplete="off"></label>
+    <div class="row2">
+      <label for="f_ig">Instagram <input id="f_ig" type="text" maxlength="40" placeholder="@namamu" autocomplete="off"></label>
+      <label for="f_tiktok">TikTok <input id="f_tiktok" type="text" maxlength="40" placeholder="@namamu" autocomplete="off"></label>
+    </div>
+
+    <label for="f_ekskul">Prestasi / ekstrakurikuler <small>Satu kegiatan per baris, misalnya Ekskul Futsal, OSIS, atau Pramuka.</small>
+      <textarea id="f_ekskul" maxlength="300"></textarea>
+    </label>
+    <label for="f_kata">Kata-kata hari ini <input id="f_kata" type="text" maxlength="150" autocomplete="off"></label>
+    <label for="f_pesan">Pesan untuk diriku 5 tahun lagi... <textarea id="f_pesan" maxlength="500"></textarea></label>
+
+    <div>
+      <h2>Foto resmi</h2>
+      <div class="foto">
+        <div class="pv" id="pv">Belum ada foto</div>
+        <div style="display:grid;gap:.5rem">
+          <input id="f_foto" type="file" accept="image/*" hidden>
+          <button class="btn sec" id="btnFoto" type="button">Pilih foto</button>
+          <p class="msg" style="color:var(--muted)">Pakai foto tegak. Foto dipotong otomatis ke rasio 2:3 dari bagian tengah.</p>
+          <p class="msg err" id="msgFoto" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <label class="cek" for="f_setuju"><input id="f_setuju" type="checkbox">
+      <span>Saya dan orang tua setuju data ini ditampilkan di buku tahunan Kelas 7F.</span></label>
+
+    <button class="btn" id="btnSimpan" type="submit">Simpan profil</button>
+    <p class="msg" id="msgSimpan" aria-live="polite"></p>
+  </form>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var cfg=window.FIREBASE_CONFIG;
+  if(!cfg||!cfg.apiKey||cfg.apiKey==="GANTI"||typeof firebase==="undefined"){
+    $("peringatan").hidden=false;$("masuk").hidden=true;return;
+  }
+  firebase.initializeApp(cfg);
+  var auth=firebase.auth(),db=firebase.firestore();
+  var ref=null,foto=null;
+
+  var F=["lengkap","nama","jk","tempat","tgl","alamat","hobi","cita","wa","ig","tiktok","ekskul","kata","pesan"];
+
+  function pesanMasuk(e){
+    var c=e&&e.code;
+    if(c==="permission-denied")return "Akses ditolak. Periksa kode, atau hubungi wali kelas.";
+    if(c==="auth/operation-not-allowed")return "Login anonim belum diaktifkan di Firebase.";
+    if(c==="unavailable"||c==="auth/network-request-failed")return "Tidak ada koneksi internet. Coba lagi.";
+    return "Gagal membuka profil. Coba lagi.";
+  }
+
+  function masuk(){
+    var kode=$("kode").value.trim().toUpperCase();
+    var m=$("msgMasuk");m.className="msg";
+    if(!/^S\d{2}-[A-Z0-9]{6}$/.test(kode)){m.className="msg err";m.textContent="Format kode salah. Contoh: S05-K3M9XQ.";return;}
+    $("btnMasuk").disabled=true;m.textContent="Memeriksa kode...";
+    auth.signInAnonymously().then(function(){
+      return db.collection("profil").doc(kode).get();
+    }).then(function(s){
+      $("btnMasuk").disabled=false;
+      if(!s.exists){m.className="msg err";m.textContent="Kode tidak ditemukan. Periksa lagi.";return;}
+      ref=s.ref;isiForm(s.data());
+      $("masuk").hidden=true;$("isi").hidden=false;window.scrollTo(0,0);
+    }).catch(function(e){
+      $("btnMasuk").disabled=false;m.className="msg err";m.textContent=pesanMasuk(e);
+    });
+  }
+
+  function isiForm(d){
+    var no=d.no||0;
+    $("judulNo").textContent="Profil No. absen "+(no<10?"0"+no:no);
+    F.forEach(function(k){var e=$("f_"+k);if(e)e.value=d[k]||"";});
+    foto=d.foto||null;tampilFoto();
+    $("f_setuju").checked=!!d.setuju;
+    $("infoSudah").textContent=d.diisi?"Profilmu sudah tersimpan. Kamu boleh mengubahnya lagi.":"Isi sesuai dirimu. Kamu bisa kembali dan mengubahnya dengan kode yang sama.";
+  }
+
+  function tampilFoto(){
+    var pv=$("pv");pv.textContent="";
+    if(foto){var i=document.createElement("img");i.alt="Foto kamu";i.src=foto;pv.appendChild(i);}
+    else pv.textContent="Belum ada foto";
+  }
+
+  function proses(file){
+    return createImageBitmap(file).then(function(bm){
+      var W=480,H=720,tr=W/H,sr=bm.width/bm.height,sx,sy,sw,sh;
+      if(sr>tr){sh=bm.height;sw=sh*tr;sx=(bm.width-sw)/2;sy=0;}
+      else{sw=bm.width;sh=sw/tr;sx=0;sy=(bm.height-sh)/2;}
+      var cv=document.createElement("canvas");cv.width=W;cv.height=H;
+      cv.getContext("2d").drawImage(bm,sx,sy,sw,sh,0,0,W,H);
+      var q=[0.82,0.7,0.6,0.5],u="";
+      for(var i=0;i<q.length;i++){u=cv.toDataURL("image/jpeg",q[i]);if(u.length<240000)break;}
+      if(u.length>=240000)throw new Error("besar");
+      return u;
+    });
+  }
+
+  $("btnFoto").addEventListener("click",function(){$("f_foto").click();});
+  $("f_foto").addEventListener("change",function(){
+    var f=$("f_foto").files[0],m=$("msgFoto");m.textContent="";
+    if(!f)return;
+    proses(f).then(function(u){foto=u;tampilFoto();},function(){m.textContent="Foto tidak bisa dibaca. Pakai foto JPG atau PNG lain.";});
+  });
+
+  $("btnMasuk").addEventListener("click",masuk);
+  $("kode").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();masuk();}});
+
+  $("isi").addEventListener("submit",function(e){
+    e.preventDefault();
+    var m=$("msgSimpan");m.className="msg err";
+    var v=function(k){return $("f_"+k).value.trim();};
+    if(!v("lengkap")||!v("nama")||!v("jk")){m.textContent="Nama lengkap, nama panggilan, dan jenis kelamin wajib diisi.";return;}
+    if(!$("f_setuju").checked){m.textContent="Centang persetujuan dulu.";return;}
+    var o={};
+    F.forEach(function(k){o[k]=v(k);});
+    if(foto)o.foto=foto;
+    o.setuju=true;o.diisi=true;o.diubah=firebase.firestore.FieldValue.serverTimestamp();
+    $("btnSimpan").disabled=true;m.className="msg";m.textContent="Menyimpan...";
+    ref.update(o).then(function(){
+      $("btnSimpan").disabled=false;m.className="msg ok";m.textContent="Tersimpan. Terima kasih! Kamu boleh menutup halaman ini.";
+    }).catch(function(err){
+      $("btnSimpan").disabled=false;m.className="msg err";
+      m.textContent=(err&&err.code==="permission-denied")?"Gagal menyimpan. Pastikan isian tidak terlalu panjang dan fotonya tidak terlalu besar.":"Gagal menyimpan. Periksa koneksi lalu coba lagi.";
+    });
+  });
+
+  var q=new URLSearchParams(location.search).get("k");
+  if(q){$("kode").value=q.toUpperCase();masuk();}
+})();
+</script>
+</body>
+</html>
