@@ -82,8 +82,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
     </div>
 
     <div>
-      <h2>Kontak dan media sosial <small style="font-weight:400;color:var(--muted)">(boleh dikosongkan)</small></h2>
-      <p class="msg" style="color:var(--muted)">Isi hanya yang kamu mau dilihat teman sekelas dan wali murid.</p>
+      <h2>Kontak dan media sosial</h2>
     </div>
     <label for="f_wa">No. WhatsApp <input id="f_wa" type="text" inputmode="tel" maxlength="20" autocomplete="off"></label>
     <div class="row2">
@@ -140,7 +139,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
     if(c==="permission-denied")return "Akses ditolak. Periksa kode, atau hubungi wali kelas.";
     if(c==="auth/operation-not-allowed")return "Login anonim belum diaktifkan di Firebase.";
     if(c==="unavailable"||c==="auth/network-request-failed")return "Tidak ada koneksi internet. Coba lagi.";
-    return "Gagal membuka profil. Coba lagi.";
+    return "Gagal membuka profil ("+(c||e.message||"error")+").";
   }
 
   function masuk(){
