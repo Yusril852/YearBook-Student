@@ -57,13 +57,12 @@ td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
 
   <div class="card" id="peringatan" hidden>Platform belum disiapkan. Isi <b>firebase-config.js</b> terlebih dahulu.</div>
 
-  <form class="card" id="login" hidden>
+  <div class="card" id="login" hidden>
     <h2>Masuk sebagai guru</h2>
-    <label for="em">Email <input id="em" type="email" autocomplete="username"></label>
-    <label for="pw">Kata sandi <input id="pw" type="password" autocomplete="current-password"></label>
-    <div class="row"><button class="btn" type="submit">Masuk</button></div>
+    <p class="msg">Gunakan akun Google yang terdaftar di aturan akses Firebase (firestore.rules).</p>
+    <div class="row"><button class="btn" id="btnGoogle" type="button">Masuk dengan Google</button></div>
     <p class="msg" id="msgLogin" aria-live="polite"></p>
-  </form>
+  </div>
 
   <div id="app" hidden style="display:grid;gap:1.25rem">
     <section class="card noprint" id="buat" hidden>
@@ -111,17 +110,20 @@ td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
   if(!cfg||!cfg.apiKey||cfg.apiKey==="GANTI"||typeof firebase==="undefined"){$("peringatan").hidden=false;return;}
   firebase.initializeApp(cfg);
   var auth=firebase.auth(),db=firebase.firestore();
+  var provider=new firebase.auth.GoogleAuthProvider();
   var rows=[];
   var bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
   function p2(n){return n<10?"0"+n:""+n}
   function pesan(e){
     var c=e&&e.code;
-    if(c==="permission-denied")return "Akses ditolak. Pastikan email guru di firestore.rules sama dengan akun yang dipakai.";
-    if(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"||c==="auth/invalid-login-credentials")return "Email atau kata sandi salah.";
+    if(c==="permission-denied")return "Akses ditolak. Pastikan email guru di firestore.rules sama dengan akun Google yang dipakai.";
+    if(c==="auth/popup-closed-by-user")return "Jendela masuk Google ditutup sebelum selesai.";
+    if(c==="auth/popup-blocked")return "Popup diblokir browser. Izinkan popup untuk situs ini lalu coba lagi.";
+    if(c==="auth/unauthorized-domain")return "Domain ini belum didaftarkan di Authorized domains Firebase Console.";
     if(c==="auth/too-many-requests")return "Terlalu banyak percobaan. Tunggu sebentar.";
     if(c==="unavailable"||c==="auth/network-request-failed")return "Tidak ada koneksi internet.";
-    return "Gagal. Coba lagi.";
+    return "Gagal: "+(e&&e.message?e.message:"Coba lagi.");
   }
   function kodeBaru(no){
     var a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",r=new Uint32Array(6),s="";
@@ -137,9 +139,13 @@ td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
   }
   function msg(id,t,cls){var e=$(id);e.textContent=t||"";e.className="msg"+(cls?" "+cls:"");}
 
-  $("login").addEventListener("submit",function(e){
-    e.preventDefault();msg("msgLogin","Masuk...");
-    auth.signInWithEmailAndPassword($("em").value.trim(),$("pw").value).catch(function(err){msg("msgLogin",pesan(err),"err");});
+  $("btnGoogle").addEventListener("click",function(){
+    msg("msgLogin","Membuka jendela masuk Google...");
+    auth.signInWithPopup(provider).then(function(){
+      msg("msgLogin","");
+    }).catch(function(err){
+      msg("msgLogin",pesan(err),"err");
+    });
   });
   $("btnKeluar").addEventListener("click",function(){auth.signOut();});
 
