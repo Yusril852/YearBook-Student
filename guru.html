@@ -23,6 +23,7 @@ textarea{min-height:7rem}
 input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .btn{padding:.6rem 1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);font-weight:600;cursor:pointer}
 .btn.sec{background:transparent;color:var(--accent)}
+.btn.danger{background:transparent;border-color:var(--err);color:var(--err)}
 .btn.kecil{padding:.25rem .6rem;font-size:.82rem;font-weight:500}
 .btn[disabled]{opacity:.55;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
@@ -82,6 +83,7 @@ td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
         <button class="btn sec" id="btnCsv" type="button">Unduh daftar kode (CSV)</button>
         <button class="btn sec" id="btnCetak" type="button">Cetak daftar kode</button>
         <button class="btn sec" id="btnMuat" type="button">Muat ulang</button>
+        <button class="btn danger" id="btnHapusSemua" type="button">Hapus semua kode (ulangi)</button>
         <button class="btn sec" id="btnKeluar" type="button">Keluar</button>
       </div>
       <p class="msg" id="msgAksi" aria-live="polite"></p>
@@ -206,6 +208,28 @@ td.k{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em}
     }
     $("btnBuat").disabled=true;msg("msgBuat","Membuat kode...");
     batch.commit().then(function(){$("btnBuat").disabled=false;msg("msgBuat","");muat();},function(e){$("btnBuat").disabled=false;msg("msgBuat",pesan(e),"err");});
+  });
+
+  $("btnHapusSemua").addEventListener("click",function(){
+    if(!rows.length)return;
+    var sudah=rows.filter(function(r){return r.diisi;}).length;
+    var peringatanTambahan=sudah>0?"\n\nPERHATIAN: Sudah ada "+sudah+" murid yang mengisi profil dan foto. Semua isian tersebut akan ikut terhapus permanen!":"";
+    if(!window.confirm("Hapus semua "+rows.length+" kode dan ulangi pembuatan kode dari awal?"+peringatanTambahan))return;
+
+    $("btnHapusSemua").disabled=true;
+    msg("msgAksi","Menghapus semua kode...");
+    var batch=db.batch();
+    rows.forEach(function(r){
+      batch.delete(db.collection("profil").doc(r._id));
+    });
+    batch.commit().then(function(){
+      $("btnHapusSemua").disabled=false;
+      $("daftar").value="";
+      muat();
+    },function(e){
+      $("btnHapusSemua").disabled=false;
+      msg("msgAksi",pesan(e),"err");
+    });
   });
 
   function gantiKode(r){
