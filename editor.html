@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Buku Tahunan 7F</title>
+<title>Editor Buku Tahunan 7F</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
 <style>
 :root{
@@ -45,9 +45,12 @@ h2{font-family:var(--font-display);font-size:1.9rem;line-height:1.15;margin:0 0 
 .roles li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem;display:grid;gap:.15rem;min-width:0}
 .roles span{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .roles b{font-family:var(--font-display);font-weight:500;font-size:1.1rem;overflow-wrap:anywhere}
+.role-form{display:grid;gap:.6rem;margin-top:.6rem}
+.role-row{display:grid;grid-template-columns:minmax(140px,1fr) minmax(180px,1.5fr) auto;gap:.5rem;align-items:center}
+@media (max-width:560px){.role-row{grid-template-columns:1fr}}
 .bar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .bar .f{display:flex;gap:.5rem;flex:1 1 280px;min-width:0}
-input[type=search],select{font:inherit;padding:.6rem .9rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);min-width:0}
+input[type=text],input[type=search],select{font:inherit;padding:.55rem .85rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);min-width:0;width:100%}
 input[type=search]{flex:1}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;padding:0 0 3rem;margin:0;list-style:none}
 .card{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.5rem .5rem .75rem}
@@ -65,6 +68,10 @@ input[type=search]{flex:1}
 .pg button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
 .btn.main{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 .btn.main:hover{color:var(--accent-fg);filter:brightness(1.08)}
+.btn.kecil{padding:.35rem .75rem;font-size:.86rem}
+.btn.danger{color:#b3261e;border-color:color-mix(in srgb,#b3261e 40%,var(--line))}
+:root[data-theme="dark"] .btn.danger{color:#ff8a80;border-color:color-mix(in srgb,#ff8a80 40%,var(--line))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.danger{color:#ff8a80;border-color:color-mix(in srgb,#ff8a80 40%,var(--line))}}
 .btn[disabled]{opacity:.55;cursor:default}
 .prof{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:1.5rem;align-items:start}
 .prof .big{aspect-ratio:2/3;width:100%;border-radius:6px;overflow:hidden;background:var(--line);border:1px solid var(--line)}
@@ -92,7 +99,7 @@ dd{margin:0;overflow-wrap:anywhere}
 .shot .lepas{position:absolute;right:4px;top:4px;font:inherit;font-size:.72rem;padding:.15rem .5rem;border-radius:999px;border:0;background:rgba(10,20,26,.82);color:#fff;cursor:pointer}
 .soon{aspect-ratio:3/1;border:1px dashed var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;font-size:.85rem;color:var(--muted)}
 .pill.soonp{background:transparent;border:1px solid var(--line);color:var(--muted)}
-.ed{display:grid;gap:.6rem;background:var(--hl);border:1px solid var(--line);border-radius:8px;padding:1rem;margin-bottom:1.25rem}
+.ed{display:grid;gap:.6rem;background:var(--hl);border:1px solid var(--line);border-radius:8px;padding:1rem;margin-top:.85rem;margin-bottom:1.25rem}
 .ed p{margin:0;font-size:.9rem}
 .ed .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
 .stat{font-size:.88rem;color:var(--muted);overflow-wrap:anywhere}
@@ -132,6 +139,7 @@ footer{border-top:1px solid var(--line);padding-block:1.5rem 2rem;color:var(--mu
   <section id="perangkat">
     <h2>Perangkat kelas</h2>
     <ul class="roles" id="roles"></ul>
+    <div id="roleEditorWrap" class="noprint"></div>
   </section>
 
   <section id="siswa">
@@ -183,17 +191,19 @@ footer{border-top:1px solid var(--line);padding-block:1.5rem 2rem;color:var(--mu
 
 <div class="zoom" id="zoom" hidden role="dialog" aria-modal="true" aria-label="Foto besar"><img id="zimg" alt=""></div>
 
-<script id="state" type="application/json">{"foto":{},"kg":{},"siswa":{}}</script>
+<script id="state" type="application/json">{"foto":{},"kg":{},"siswa":{},"roles":null}</script>
 
 <script id="app">
 var STORAGE_KEY = "yearbook_7F_state_v1";
 var IS_FINAL_EXPORT = document.documentElement.hasAttribute("data-final-export");
+var DEFAULT_ROLES = [["Ketua kelas",1],["Wakil ketua",2],["Sekretaris",3],["Bendahara",4]];
 
 var STATE = (function(){
-  var base = {foto:{},kg:{},siswa:{}};
+  var base = {foto:{},kg:{},siswa:{},roles:null};
   try{
     var s = JSON.parse(document.getElementById("state").textContent);
     base.foto = s.foto || {}; base.kg = s.kg || {}; base.siswa = s.siswa || {};
+    base.roles = Array.isArray(s.roles) ? s.roles : null;
   }catch(e){}
   if(!IS_FINAL_EXPORT){
     try{
@@ -203,11 +213,16 @@ var STATE = (function(){
         base.foto = p.foto || base.foto;
         base.kg = p.kg || base.kg;
         base.siswa = p.siswa || base.siswa;
+        if(Array.isArray(p.roles)) base.roles = p.roles;
       }
     }catch(e){}
   }
   return base;
 })();
+
+function getRoles(){
+  return (Array.isArray(STATE.roles) && STATE.roles.length) ? STATE.roles : DEFAULT_ROLES.map(function(r){return r.slice();});
+}
 
 function isValidImg(val){
   return typeof val === "string" && (val.startsWith("data:image/") || val.startsWith("http") || val.startsWith("./"));
@@ -247,8 +262,6 @@ function bangunSiswa(){
   }
 }
 
-var roles=[["Ketua kelas",1],["Wakil ketua",2],["Sekretaris",3],["Bendahara",4]];
-
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function p2(n){return n<10?"0"+n:""+n}
 function contoh(s){
@@ -265,11 +278,116 @@ function isi(el,s){el.innerHTML=s.foto?'<img alt="Foto '+esc(s.nama)+'" src="'+e
 function renderRoles(){
   var rl=document.getElementById("roles");
   rl.innerHTML="";
-  roles.forEach(function(r){
-    var s=siswa[r[1]-1],li=document.createElement("li");
-    li.innerHTML='<span>'+esc(r[0])+'</span><b>'+esc(s?s.nama:"-")+'</b>';
+  var daftarRoles = getRoles();
+  daftarRoles.forEach(function(r){
+    var no = parseInt(r[1], 10);
+    var s = (no >= 1 && no <= 32) ? siswa[no-1] : null;
+    var namaTampil = s ? (s.lengkap || s.nama) : (typeof r[1] === "string" ? r[1] : "-");
+    var li = document.createElement("li");
+    li.innerHTML = '<span>'+esc(r[0])+'</span><b>'+esc(namaTampil)+'</b>';
     rl.appendChild(li);
   });
+}
+
+function renderRoleEditor(){
+  var wrap = document.getElementById("roleEditorWrap");
+  if(!wrap) return;
+  if(IS_FINAL_EXPORT){ wrap.innerHTML = ""; return; }
+
+  var daftarRoles = getRoles();
+  var box = document.createElement("div");
+  box.className = "ed";
+  box.innerHTML = '<b>Edit perangkat kelas</b><p>Ubah jabatan atau pilih nama murid sesuai nomor absen. Susunan ini otomatis ikut tersimpan saat Anda mengunduh HTML final.</p>';
+
+  var form = document.createElement("div");
+  form.className = "role-form";
+
+  daftarRoles.forEach(function(r, idxRole){
+    var row = document.createElement("div");
+    row.className = "role-row";
+
+    var inpJab = document.createElement("input");
+    inpJab.type = "text";
+    inpJab.value = r[0] || "";
+    inpJab.placeholder = "Nama jabatan";
+    inpJab.setAttribute("aria-label", "Nama jabatan ke-" + (idxRole + 1));
+    inpJab.addEventListener("input", function(){
+      var cur = getRoles();
+      cur[idxRole][0] = inpJab.value;
+      STATE.roles = cur;
+      simpanLokal("Perangkat kelas diperbarui.", true);
+    });
+
+    var selSiswa = document.createElement("select");
+    selSiswa.setAttribute("aria-label", "Pilih murid untuk " + (r[0] || "jabatan"));
+    siswa.forEach(function(s){
+      var opt = document.createElement("option");
+      opt.value = String(s.no);
+      opt.textContent = "Absen " + p2(s.no) + " - " + (s.lengkap || s.nama);
+      if(parseInt(r[1], 10) === s.no) opt.selected = true;
+      selSiswa.appendChild(opt);
+    });
+    selSiswa.addEventListener("change", function(){
+      var cur = getRoles();
+      cur[idxRole][1] = parseInt(selSiswa.value, 10);
+      STATE.roles = cur;
+      simpanLokal("Perangkat kelas diperbarui.", true);
+    });
+
+    var btnDel = document.createElement("button");
+    btnDel.type = "button";
+    btnDel.className = "btn kecil danger";
+    btnDel.textContent = "Hapus";
+    btnDel.disabled = daftarRoles.length <= 1;
+    btnDel.addEventListener("click", function(){
+      var cur = getRoles();
+      cur.splice(idxRole, 1);
+      STATE.roles = cur;
+      simpanLokal("Jabatan dihapus.");
+    });
+
+    row.appendChild(inpJab);
+    row.appendChild(selSiswa);
+    row.appendChild(btnDel);
+    form.appendChild(row);
+  });
+
+  box.appendChild(form);
+
+  var aksiRow = document.createElement("div");
+  aksiRow.className = "row";
+
+  var btnAdd = document.createElement("button");
+  btnAdd.type = "button";
+  btnAdd.className = "btn kecil";
+  btnAdd.textContent = "+ Tambah jabatan";
+  btnAdd.addEventListener("click", function(){
+    var cur = getRoles();
+    cur.push(["Seksi Kebersihan", 5]);
+    STATE.roles = cur;
+    simpanLokal("Jabatan baru ditambahkan.");
+  });
+
+  var btnResetRole = document.createElement("button");
+  btnResetRole.type = "button";
+  btnResetRole.className = "btn kecil";
+  btnResetRole.textContent = "Reset perangkat kelas";
+  btnResetRole.addEventListener("click", function(){
+    STATE.roles = null;
+    simpanLokal("Perangkat kelas dikembalikan ke bawaan.");
+  });
+
+  var statRole = document.createElement("span");
+  statRole.className = "stat";
+  statRole.id = "statRole";
+
+  aksiRow.appendChild(btnAdd);
+  aksiRow.appendChild(btnResetRole);
+  aksiRow.appendChild(statRole);
+  box.appendChild(aksiRow);
+
+  wrap.innerHTML = "";
+  wrap.appendChild(box);
 }
 
 var grid=document.getElementById("grid"),kosong=document.getElementById("kosong"),hitung=document.getElementById("hitung"),cari=document.getElementById("cari");
@@ -414,15 +532,16 @@ document.addEventListener("keydown",function(e){
 });
 
 function setStat(t,err){
-  ["stat","pStat"].forEach(function(id){
+  ["stat","pStat","statRole"].forEach(function(id){
     var e=document.getElementById(id);
     if(e){e.textContent=t||"";e.className="stat"+(err?" err":"");}
   });
 }
 
-function simpanLokal(pesan){
+function simpanLokal(pesan, skipRoleForm){
   bangunSiswa();
   renderRoles();
+  if(!skipRoleForm) renderRoleEditor();
   render();
   renderKg();
   try{
@@ -537,8 +656,11 @@ function impor(file){
 function eksporHtmlMandiri(){
   var clone = document.documentElement.cloneNode(true);
   clone.setAttribute("data-final-export","1");
+  var titleEl = clone.querySelector("title");
+  if(titleEl) titleEl.textContent = "Buku Tahunan 7F";
   var st = clone.querySelector("#state");
   if(st) st.textContent = JSON.stringify(STATE).replace(/</g,"\\u003c");
+  var roleEd = clone.querySelector("#roleEditorWrap"); if(roleEd) roleEd.innerHTML = "";
   var edbar = clone.querySelector("#edbar"); if(edbar) edbar.innerHTML = "";
   var rolesEl = clone.querySelector("#roles"); if(rolesEl) rolesEl.innerHTML = "";
   var gridEl = clone.querySelector("#grid"); if(gridEl) gridEl.innerHTML = "";
@@ -552,7 +674,7 @@ function eksporHtmlMandiri(){
   document.body.appendChild(a);
   a.click();
   setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
-  setStat("File Buku-Tahunan-7F-Final.html terunduh (berisi seluruh data & foto asli, siap dibagikan/dicetak).");
+  setStat("File Buku-Tahunan-7F-Final.html terunduh (berisi perangkat kelas, data & foto asli, siap dibagikan/dicetak).");
 }
 
 function pengelola(){
@@ -572,13 +694,14 @@ function pengelola(){
   document.getElementById("resetBtn").addEventListener("click",function(){
     if(!confirm("Hapus data impor sementara di browser ini dan kembali ke data contoh?"))return;
     localStorage.removeItem(STORAGE_KEY);
-    STATE={foto:{},kg:{},siswa:{}};
+    STATE={foto:{},kg:{},siswa:{},roles:null};
     simpanLokal("Data direset ke contoh.");
   });
 }
 
 bangunSiswa();
 renderRoles();
+renderRoleEditor();
 render();
 renderKg();
 pengelola();
