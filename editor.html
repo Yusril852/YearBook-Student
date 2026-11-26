@@ -396,7 +396,6 @@ var db = null;
 var auth = null;
 var filterMode = "all";
 
-/* Theme Toggle */
 (function initTheme(){
   var btn = document.getElementById("themeToggle");
   if(!btn) return;
@@ -450,6 +449,28 @@ function getRoles(){
 
 function isValidImg(val){
   return typeof val === "string" && (val.startsWith("data:image/") || val.startsWith("http") || val.startsWith("./"));
+}
+
+/* Kompres Data URL agar tidak melebihi kuota 1MB dokumen Firestore */
+function recompressDataUrl(dataUrl, maxDim, quality){
+  return new Promise(function(resolve){
+    if(!isValidImg(dataUrl) || !dataUrl.startsWith("data:image/")){
+      resolve(dataUrl);
+      return;
+    }
+    var img = new Image();
+    img.onload = function(){
+      var sc = Math.min(1, (maxDim || 360) / Math.max(img.width, img.height));
+      var w = Math.max(1, Math.round(img.width * sc));
+      var h = Math.max(1, Math.round(img.height * sc));
+      var cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      cv.getContext("2d").drawImage(img, 0, 0, w, h);
+      resolve(cv.toDataURL("image/jpeg", quality || 0.65));
+    };
+    img.onerror = function(){ resolve(dataUrl); };
+    img.src = dataUrl;
+  });
 }
 
 var hobiC=["Membaca","Sepak bola","Menggambar","Bulu tangkis","Memasak","Bermain gim","Menyanyi","Berenang"];
@@ -644,7 +665,7 @@ function renderRoleEditor(){
   btnSaveRole.className = "btn main kecil";
   btnSaveRole.textContent = "Simpan ke database";
   btnSaveRole.addEventListener("click", function(){
-    simpanDatabase("Susunan perangkat kelas tersimpan ke database.");
+    simpanDatabase("Susunan perangkat kelas tersimpan ke database.", "meta");
   });
 
   var btnAdd = document.createElement("button");
@@ -667,7 +688,7 @@ function renderRoleEditor(){
     STATE.roles = null;
     renderRoles();
     renderRoleEditor();
-    simpanDatabase("Perangkat kelas direset ke bawaan.");
+    simpanDatabase("Perangkat kelas direset ke bawaan.", "meta");
   });
 
   var statRole = document.createElement("span");
@@ -697,7 +718,7 @@ function render(){
   tampil.forEach(function(s,k){
     var li=document.createElement("li"),b=document.createElement("button");
     b.type="button";b.className="card";
-    b.innerHTML='<span class="photo"><span class="badge-no">#'+p2(s.no)+'</span>'+(s.diisi?'<span class="badge-ok">Terisi</span>':'')+'</span>'
+    b.innerHTML='<span class="photo"></span>'
       +'<span class="name">'+esc(s.nama)+'</span>'
       +'<span class="subname">'+esc(s.lengkap)+'</span>'
       +'<span class="motto">'+(s.kata?'\u201C'+esc(s.kata)+'\u201D':'-')+'</span>';
@@ -833,7 +854,7 @@ function isiProfil(){
     ed.appendChild(b);
     if(s.foto){
       var d=document.createElement("button");d.type="button";d.className="btn kecil";d.textContent="Lepas foto";
-      d.addEventListener("click",function(){delete STATE.foto[s.no];simpanDatabase("Foto dilepas.");isiProfil();});
+      d.addEventListener("click",function(){delete STATE.foto[s.no];simpanDatabase("Foto dilepas.", "foto");isiProfil();});
       ed.appendChild(d);
     }
     var st=document.createElement("span");st.className="stat";st.id="pStat";
@@ -868,7 +889,8 @@ function setStat(t,err){
   });
 }
 
-function simpanDatabase(pesanSukses){
+/* Penyimpanan terpecah multi-dokumen agar tidak melewati batas 1MB Firestore */
+function simpanDatabase(pesanSukses, bagian){
   bangunSiswa();
   renderRoles();
   renderRoleEditor();
@@ -876,14 +898,33 @@ function simpanDatabase(pesanSukses){
   renderKg();
   if(!db || IS_FINAL_EXPORT) return Promise.resolve();
   setStat("Menyimpan ke Cloud Firestore...");
-  var payload = {
-    roles: STATE.roles || null,
-    siswa: STATE.siswa || {},
-    foto: STATE.foto || {},
-    kg: STATE.kg || {},
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  return db.collection("pengaturan").doc("yearbook").set(payload).then(function(){
+
+  var tasks = [];
+  var ts = firebase.firestore.FieldValue.serverTimestamp();
+
+  if(!bagian || bagian === "all" || bagian === "meta"){
+    tasks.push(db.collection("pengaturan").doc("yearbook").set({
+      roles: STATE.roles || null,
+      siswa: STATE.siswa || {},
+      updatedAt: ts
+    }));
+  }
+  if(!bagian || bagian === "all" || bagian === "foto"){
+    tasks.push(db.collection("pengaturan").doc("foto_siswa").set({
+      foto: STATE.foto || {},
+      updatedAt: ts
+    }));
+  }
+  if(!bagian || bagian === "all" || bagian === "kg"){
+    for(var k=0; k<kegiatan.length; k++){
+      tasks.push(db.collection("pengaturan").doc("kg_" + k).set({
+        imgs: STATE.kg[k] || [],
+        updatedAt: ts
+      }));
+    }
+  }
+
+  return Promise.all(tasks).then(function(){
     setStat(pesanSukses || "Tersimpan ke database.");
   }).catch(function(e){
     var msg = (e && e.code === "permission-denied")
@@ -896,20 +937,47 @@ function simpanDatabase(pesanSukses){
 function muatDariDatabase(){
   if(!db) return;
   setStat("Memuat data dari database...");
-  db.collection("pengaturan").doc("yearbook").get().then(function(doc){
-    if(doc.exists){
-      var d = doc.data() || {};
+  var col = db.collection("pengaturan");
+  var reads = [
+    col.doc("yearbook").get(),
+    col.doc("foto_siswa").get()
+  ];
+  for(var k=0; k<kegiatan.length; k++){
+    reads.push(col.doc("kg_" + k).get());
+  }
+
+  Promise.all(reads).then(function(snaps){
+    var docMeta = snaps[0];
+    var docFoto = snaps[1];
+    var adaData = false;
+
+    if(docMeta.exists){
+      var d = docMeta.data() || {};
       STATE.roles = normalizeRoles(d.roles);
       STATE.siswa = d.siswa || {};
-      STATE.foto = d.foto || {};
-      STATE.kg = d.kg || {};
+      if(d.foto && Object.keys(d.foto).length) STATE.foto = d.foto;
+      if(d.kg && Object.keys(d.kg).length) STATE.kg = d.kg;
+      adaData = true;
     }
+    if(docFoto.exists){
+      var df = docFoto.data() || {};
+      if(df.foto) STATE.foto = df.foto;
+      adaData = true;
+    }
+    for(var k=0; k<kegiatan.length; k++){
+      var dk = snaps[2 + k];
+      if(dk && dk.exists){
+        STATE.kg[k] = (dk.data() && dk.data().imgs) || [];
+        adaData = true;
+      }
+    }
+
     bangunSiswa();
     renderRoles();
     renderRoleEditor();
     render();
     renderKg();
-    setStat(doc.exists ? "Data editor dimuat dari database." : "Database editor siap digunakan.");
+    setStat(adaData ? "Data editor dimuat dari database." : "Database editor siap digunakan.");
   }).catch(function(e){
     setStat("Gagal memuat dari database (" + (e && e.code ? e.code : "error") + ").", true);
   });
@@ -917,9 +985,11 @@ function muatDariDatabase(){
 
 function tarikDariKoleksiProfil(){
   if(!db) return;
-  setStat("Mengambil data terbaru 32 murid dari database...");
+  setStat("Mengambil & mengompres data terbaru 32 murid dari database...");
   db.collection("profil").orderBy("no").get().then(function(q){
-    var count = 0, nFoto = 0;
+    var count = 0;
+    var fotoPromises = [];
+
     q.docs.forEach(function(doc){
       var r = doc.data();
       if(!r || !r.diisi || r.no < 1 || r.no > 32) return;
@@ -934,16 +1004,25 @@ function tarikDariKoleksiProfil(){
         ekskul:(r.ekskul||"").split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean)
       };
       if(isValidImg(r.foto)){
-        STATE.foto[r.no] = r.foto;
-        nFoto++;
+        (function(noSiswa, rawFoto){
+          fotoPromises.push(
+            recompressDataUrl(rawFoto, 360, 0.65).then(function(smallUrl){
+              STATE.foto[noSiswa] = smallUrl;
+            })
+          );
+        })(r.no, r.foto);
       }
       count++;
     });
+
     if(!count){
       setStat("Belum ada murid yang mengisi profil di database.", true);
       return;
     }
-    simpanDatabase("Berhasil menarik & menyimpan " + count + " profil murid (" + nFoto + " foto) dari database.");
+
+    Promise.all(fotoPromises).then(function(){
+      return simpanDatabase("Berhasil menarik & menyimpan " + count + " profil murid (" + fotoPromises.length + " foto) ke database.", "all");
+    });
   }).catch(function(e){
     setStat("Gagal menarik data profil (" + (e && e.code ? e.code : "error") + ").", true);
   });
@@ -959,21 +1038,21 @@ function pilihFile(banyak,fn){
   inp.click();
 }
 
-function kecilDataUrl(file, maxDim){
+function kecilDataUrl(file, maxDim, quality){
   return createImageBitmap(file).then(function(bm){
-    var sc=Math.min(1,(maxDim||700)/Math.max(bm.width,bm.height));
+    var sc=Math.min(1,(maxDim||360)/Math.max(bm.width,bm.height));
     var w=Math.round(bm.width*sc),h=Math.round(bm.height*sc);
     var cv=document.createElement("canvas");cv.width=w;cv.height=h;
     cv.getContext("2d").drawImage(bm,0,0,w,h);
-    return cv.toDataURL("image/jpeg",0.72);
+    return cv.toDataURL("image/jpeg", quality || 0.65);
   });
 }
 
 function gantiFoto(no,file){
   setStat("Memproses foto...");
-  kecilDataUrl(file, 480).then(function(dataUrl){
+  kecilDataUrl(file, 360, 0.65).then(function(dataUrl){
     STATE.foto[no]=dataUrl;
-    simpanDatabase("Foto tersimpan ke database.").then(function(){
+    simpanDatabase("Foto tersimpan ke database.", "foto").then(function(){
       if(!pg.hidden)isiProfil();
     });
   },function(){setStat("Format foto tidak didukung.",true);});
@@ -985,19 +1064,36 @@ function tambahKg(k,files){
   var chain=Promise.resolve();
   files.forEach(function(f){
     chain=chain.then(function(){
-      return kecilDataUrl(f, 720).then(function(u){imgs.push(u);});
+      return kecilDataUrl(f, 640, 0.68).then(function(u){imgs.push(u);});
     });
   });
   chain.then(function(){
     STATE.kg[k]=imgs;
-    simpanDatabase("Foto kegiatan tersimpan ke database.");
+    if(!db || IS_FINAL_EXPORT) return;
+    setStat("Menyimpan foto kegiatan...");
+    db.collection("pengaturan").doc("kg_" + k).set({
+      imgs: imgs,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      renderKg();
+      setStat("Foto kegiatan tersimpan ke database.");
+    }).catch(function(e){
+      setStat("Gagal menyimpan foto kegiatan (" + (e && e.message ? e.message : "error") + ").", true);
+    });
   });
 }
 
 function lepasKg(k,j){
   var imgs=imgsKg(k).slice();imgs.splice(j,1);
   STATE.kg[k]=imgs;
-  simpanDatabase("Foto dilepas dari database.");
+  if(!db || IS_FINAL_EXPORT) return;
+  db.collection("pengaturan").doc("kg_" + k).set({
+    imgs: imgs,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    renderKg();
+    setStat("Foto dilepas dari database.");
+  });
 }
 
 function bulkSiswa(files){
@@ -1007,12 +1103,12 @@ function bulkSiswa(files){
     var m=/^\s*0*(\d{1,2})(?!\d)/.exec(f.name),no=m?parseInt(m[1],10):0;
     if(no<1||no>32){skip.push(f.name);return;}
     chain=chain.then(function(){
-      return kecilDataUrl(f, 480).then(function(u){STATE.foto[no]=u;done++;},function(){skip.push(f.name);});
+      return kecilDataUrl(f, 360, 0.65).then(function(u){STATE.foto[no]=u;done++;},function(){skip.push(f.name);});
     });
   });
   chain.then(function(){
     if(!done){setStat("Tidak ada foto yang cocok. Awali nama file dengan nomor absen, misalnya 01_Ahmad.jpg.",true);return;}
-    simpanDatabase(done+" foto tersimpan ke database"+(skip.length?", "+skip.length+" dilewati":"")+".");
+    simpanDatabase(done+" foto tersimpan ke database"+(skip.length?", "+skip.length+" dilewati":"")+".", "foto");
   });
 }
 
@@ -1026,14 +1122,14 @@ function pilihJson(fn){
 function bersih(v,n){return typeof v==="string"?v.trim().slice(0,n):"";}
 
 function impor(file){
-  setStat("Membaca file...");
+  setStat("Membaca & mengompres file JSON...");
   file.text().then(function(t){
     var d;
     try{d=JSON.parse(t);}catch(e){throw new Error("Format JSON tidak valid.");}
     if(!d||!Array.isArray(d.siswa))throw new Error("Berkas bukan data dari dashboard guru (yearbook-7F-data.json).");
     var list=d.siswa.filter(function(x){return x&&Number.isInteger(x.no)&&x.no>=1&&x.no<=32&&x.diisi===true;});
     if(!list.length){setStat("Belum ada murid yang berstatus 'Sudah' di file JSON ini.",true);return;}
-    var nFoto=0;
+    var fotoPromises=[];
     list.forEach(function(x){
       STATE.siswa[x.no]={
         nama:bersih(x.nama,40),lengkap:bersih(x.lengkap,80),jk:bersih(x.jk,20),ttl:bersih(x.ttl,80),
@@ -1043,11 +1139,18 @@ function impor(file){
         ekskul:(Array.isArray(x.ekskul)?x.ekskul:[]).filter(function(s){return typeof s==="string"&&s.trim();}).slice(0,10).map(function(s){return s.trim().slice(0,80);})
       };
       if(isValidImg(x.foto)){
-        STATE.foto[x.no]=x.foto;
-        nFoto++;
+        (function(noSiswa, rawFoto){
+          fotoPromises.push(
+            recompressDataUrl(rawFoto, 360, 0.65).then(function(smallUrl){
+              STATE.foto[noSiswa] = smallUrl;
+            })
+          );
+        })(x.no, x.foto);
       }
     });
-    simpanDatabase("Berhasil mengimpor & menyimpan "+list.length+" murid ("+nFoto+" foto) ke database.");
+    return Promise.all(fotoPromises).then(function(){
+      return simpanDatabase("Berhasil mengimpor & menyimpan "+list.length+" murid ("+fotoPromises.length+" foto) ke database.", "all");
+    });
   }).catch(function(e){setStat(e.message||"Gagal membaca file.",true);});
 }
 
@@ -1097,7 +1200,7 @@ function pengelola(){
   document.getElementById("resetBtn").addEventListener("click",function(){
     if(!confirm("Hapus seluruh data editor di Cloud Firestore dan kembalikan ke contoh?"))return;
     STATE={foto:{},kg:{},siswa:{},roles:null};
-    simpanDatabase("Database editor berhasil direset.");
+    simpanDatabase("Database editor berhasil direset.", "all");
   });
   document.getElementById("logoutBtn").addEventListener("click",function(){
     if(auth) auth.signOut();
