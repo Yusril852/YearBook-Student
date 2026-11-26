@@ -118,16 +118,26 @@ h2::before{content:"";display:inline-block;width:6px;height:1.35em;border-radius
 
 /* Sambutan Wali Kelas */
 .sambutan{
-  position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;
-  padding:2rem 2rem 2rem 2.25rem;display:grid;gap:1rem;max-width:74ch;box-shadow:var(--shadow-sm);overflow:hidden
+  position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:2rem;display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:1.85rem;align-items:center;
+  box-shadow:var(--shadow-sm);overflow:hidden
 }
 .sambutan::before{
-  content:"\201C";position:absolute;top:-.35rem;right:1.25rem;font-family:Georgia,serif;
-  font-size:7rem;line-height:1;color:var(--accent);opacity:.12;pointer-events:none
+  content:"\201C";position:absolute;top:-.45rem;right:1.25rem;font-family:Georgia,serif;
+  font-size:7rem;line-height:1;color:var(--accent);opacity:.11;pointer-events:none
 }
-.sambutan p{margin:0;font-size:1.02rem}
-.ttd{margin-top:.5rem;padding-top:1rem;border-top:1px dashed var(--line);display:grid;gap:.1rem}
-.ttd strong{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--accent)}
+.wali-photo-wrap{display:grid;gap:.55rem;justify-items:center}
+.wali-photo{
+  width:100%;max-width:210px;aspect-ratio:3/4;border-radius:14px;overflow:hidden;
+  border:3px solid var(--hl);box-shadow:var(--shadow-md);background:var(--surface-2);position:relative
+}
+.wali-photo img,.wali-photo svg{display:block;width:100%;height:100%;object-fit:cover}
+.wali-tag{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--hl);padding:.22rem .75rem;border-radius:999px}
+.sambutan-body{display:grid;gap:1rem;position:relative;z-index:1}
+.sambutan-text{display:grid;gap:.85rem}
+.sambutan-text p{margin:0;font-size:1.03rem;line-height:1.7}
+.ttd{margin-top:.35rem;padding-top:1rem;border-top:1px dashed var(--line);display:grid;gap:.12rem}
+.ttd strong{font-family:var(--font-display);font-weight:700;font-size:1.18rem;color:var(--accent)}
 
 /* Perangkat Kelas */
 .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.9rem;margin:0;padding:0;list-style:none}
@@ -154,9 +164,10 @@ h2::before{content:"";display:inline-block;width:6px;height:1.35em;border-radius
 .chip{font:inherit;font-size:.82rem;font-weight:600;padding:.38rem .85rem;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);cursor:pointer;transition:all .18s ease}
 .chip:hover{border-color:var(--accent);color:var(--accent)}
 .chip.active{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-input[type=text],input[type=search],select{font:inherit;padding:.55rem .85rem;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--fg);min-width:0;width:100%;transition:border-color .18s ease}
+input[type=text],input[type=search],select,textarea{font:inherit;padding:.55rem .85rem;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--fg);min-width:0;width:100%;transition:border-color .18s ease}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
 input[type=search]{flex:1}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 /* Student Cards Grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:1.15rem;padding:0 0 3rem;margin:0;list-style:none}
@@ -223,10 +234,12 @@ dd{margin:0;font-weight:500;overflow-wrap:anywhere}
 .pill.soonp{background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
 
 /* Editor Control Box */
-.ed{display:grid;gap:.7rem;background:var(--surface);border:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:14px;padding:1.15rem;margin-top:.95rem;margin-bottom:1.35rem;box-shadow:var(--shadow-sm)}
-.ed-title{display:flex;align-items:center;gap:.5rem;font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--accent)}
+.ed{display:grid;gap:.75rem;background:var(--surface);border:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:14px;padding:1.15rem;margin-top:.95rem;margin-bottom:1.35rem;box-shadow:var(--shadow-sm)}
+.ed-title{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--accent)}
 .ed p{margin:0;font-size:.9rem;color:var(--muted)}
 .ed .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.ed-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.65rem}
+.lbl{display:grid;gap:.3rem;font-size:.83rem;font-weight:600;color:var(--muted)}
 .stat{font-size:.88rem;color:var(--accent);font-weight:600;overflow-wrap:anywhere}
 .stat.err{color:#b3261e}
 :root[data-theme="dark"] .stat.err{color:#ff8a80}
@@ -242,6 +255,10 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
 .confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:40;animation:fall 1.1s cubic-bezier(.25,.8,.25,1) forwards}
 @keyframes fall{0%{opacity:1;transform:translate(0,0) rotate(0deg)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(360deg)}}
 
+@media (max-width:680px){
+  .sambutan{grid-template-columns:1fr;padding:1.45rem;text-align:left}
+  .wali-photo{max-width:180px}
+}
 @media (max-width:620px){
   .prof{grid-template-columns:1fr}
   .prof .big{max-width:230px;margin-inline:auto}
@@ -274,7 +291,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
     <h1>Kelas 7F 2026/2027</h1>
     <p class="sub">Tahun pertama kami melangkah bersama di SMP — merangkai cerita, tawa, dan kenangan yang tak tergantikan.</p>
     <div class="hero-cards">
-      <div class="hcard"><span>Wali Kelas</span><strong>Yusril Ainul Yakin, S.Pd., Gr.</strong></div>
+      <div class="hcard"><span>Wali Kelas</span><strong id="heroWaliNama">Yusril Ainul Yakin, S.Pd., Gr.</strong></div>
       <div class="hcard"><span>Keluarga Kelas</span><strong id="heroStatSiswa">32 Siswa Aktif</strong></div>
       <div class="hcard"><span>Dokumentasi</span><strong id="heroStatKg">8 Agenda Semester</strong></div>
     </div>
@@ -284,7 +301,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
 <div id="authGate" class="wrap noprint">
   <div class="auth-box">
     <h2 style="font-size:1.35rem">Masuk ke Mode Editor</h2>
-    <p class="note">Login dengan akun Google guru untuk mengelola susunan perangkat kelas, menarik biodata siswa dari Cloud Firestore, dan mengekspor halaman publik <b>7F.html</b>.</p>
+    <p class="note">Login dengan akun Google guru untuk mengelola sambutan wali kelas, susunan perangkat kelas, menarik biodata siswa dari Cloud Firestore, dan mengekspor halaman publik <b>7F.html</b>.</p>
     <div class="row" style="display:flex;gap:.5rem;flex-wrap:wrap">
       <button type="button" class="btn main" id="btnLoginGoogle">Masuk dengan Google</button>
     </div>
@@ -296,12 +313,23 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
   <section id="sambutan">
     <div class="sec-head">
       <h2>Sambutan wali kelas</h2>
+      <button type="button" class="btn kecil noprint" id="btnToggleSambutanEd">✎ Edit sambutan & foto</button>
     </div>
     <div class="sambutan">
-      <p>Anak-anak 7F yang Bapak banggakan. Buku ini mencatat tahun pertama kalian di SMP Negeri 3 Kaliwungu: pelajaran baru, sahabat baru, dan kebiasaan baik yang kalian bangun bersama setiap hari.</p>
-      <p>Simpan kenangan ini baik-baik. Suatu hari nanti kalian akan membukanya kembali dan tersenyum melihat perjalanan awal kalian bertumbuh bersama.</p>
-      <p class="ttd"><span>Salam hangat,</span><strong>Yusril Ainul Yakin, S.Pd., Gr.</strong><span class="note">Wali Kelas 7F · Tahun Ajaran 2026/2027</span></p>
+      <div class="wali-photo-wrap">
+        <div class="wali-photo" id="waliFotoBox"></div>
+        <span class="wali-tag">Wali Kelas 7F</span>
+      </div>
+      <div class="sambutan-body">
+        <div class="sambutan-text" id="sambutanIsi"></div>
+        <div class="ttd">
+          <span>Salam hangat,</span>
+          <strong id="sambutanNama">Yusril Ainul Yakin, S.Pd., Gr.</strong>
+          <span class="note" id="sambutanJabatan">Wali Kelas 7F · Tahun Ajaran 2026/2027</span>
+        </div>
+      </div>
     </div>
+    <div id="sambutanEditorWrap" class="noprint" hidden></div>
   </section>
 
   <section id="perangkat">
@@ -346,7 +374,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
 <footer>
   <div class="wrap foot-in">
     <span>Buku Tahunan Digital Kelas 7F · SMP Negeri 3 Kaliwungu (2026/2027)</span>
-    <span>Wali Kelas: Yusril Ainul Yakin, S.Pd., Gr.</span>
+    <span id="footWaliNama">Wali Kelas: Yusril Ainul Yakin, S.Pd., Gr.</span>
   </div>
 </footer>
 
@@ -376,7 +404,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
 
 <div class="zoom" id="zoom" hidden role="dialog" aria-modal="true" aria-label="Foto besar"><img id="zimg" alt=""></div>
 
-<script id="state" type="application/json">{"foto":{},"kg":{},"siswa":{},"roles":null}</script>
+<script id="state" type="application/json">{"foto":{},"kg":{},"siswa":{},"roles":null,"sambutan":null}</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -391,6 +419,12 @@ var DEFAULT_ROLES = [
   {jabatan:"Sekretaris", anggota:[3, 4]},
   {jabatan:"Bendahara", anggota:[5, 6]}
 ];
+var DEFAULT_SAMBUTAN = {
+  nama: "Yusril Ainul Yakin, S.Pd., Gr.",
+  jabatan: "Wali Kelas 7F · Tahun Ajaran 2026/2027",
+  teks: "Anak-anak 7F yang Bapak banggakan. Buku ini mencatat tahun pertama kalian di SMP Negeri 3 Kaliwungu: pelajaran baru, sahabat baru, dan kebiasaan baik yang kalian bangun bersama setiap hari.\n\nSimpan kenangan ini baik-baik. Suatu hari nanti kalian akan membukanya kembali dan tersenyum melihat perjalanan awal kalian bertumbuh bersama.",
+  foto: null
+};
 
 var db = null;
 var auth = null;
@@ -414,16 +448,221 @@ var filterMode = "all";
 })();
 
 var STATE = (function(){
-  var base = {foto:{},kg:{},siswa:{},roles:null};
+  var base = {foto:{},kg:{},siswa:{},roles:null,sambutan:null};
   try{
     var s = JSON.parse(document.getElementById("state").textContent);
     base.foto = s.foto || {};
     base.kg = s.kg || {};
     base.siswa = s.siswa || {};
     base.roles = normalizeRoles(s.roles);
+    base.sambutan = s.sambutan || null;
   }catch(e){}
   return base;
 })();
+
+function getSambutan(){
+  var s = STATE.sambutan || {};
+  return {
+    nama: (typeof s.nama === "string" && s.nama.trim()) ? s.nama : DEFAULT_SAMBUTAN.nama,
+    jabatan: (typeof s.jabatan === "string" && s.jabatan.trim()) ? s.jabatan : DEFAULT_SAMBUTAN.jabatan,
+    teks: (typeof s.teks === "string" && s.teks.trim()) ? s.teks : DEFAULT_SAMBUTAN.teks,
+    foto: isValidImg(s.foto) ? s.foto : null
+  };
+}
+
+function waliSvg(nama){
+  var ini = (nama || "YA").split(" ").filter(Boolean).map(function(k){return k[0];}).join("").slice(0,2).toUpperCase();
+  return '<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Foto wali kelas '+esc(nama)+'">'
+    +'<defs><linearGradient id="gwali" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b6e75"/><stop offset="100%" stop-color="#07323b"/></linearGradient></defs>'
+    +'<rect width="300" height="400" fill="url(#gwali)"/>'
+    +'<circle cx="150" cy="148" r="62" fill="#d9eff1"/>'
+    +'<path d="M35 400c0-82 52-135 115-135s115 53 115 135z" fill="#d9eff1"/>'
+    +'<text x="150" y="164" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="44" font-weight="700" fill="#0b6e75">'+esc(ini)+'</text></svg>';
+}
+
+function renderSambutan(){
+  var sb = getSambutan();
+  var boxFoto = document.getElementById("waliFotoBox");
+  if(boxFoto){
+    boxFoto.innerHTML = sb.foto
+      ? '<img alt="Foto '+esc(sb.nama)+'" src="'+esc(sb.foto)+'">'
+      : waliSvg(sb.nama);
+  }
+  var isiEl = document.getElementById("sambutanIsi");
+  if(isiEl){
+    var paras = sb.teks.split(/\n\s*\n/).map(function(p){return p.trim();}).filter(Boolean);
+    isiEl.innerHTML = paras.map(function(p){
+      return '<p>' + esc(p).replace(/\n/g, "<br>") + '</p>';
+    }).join("");
+  }
+  var namaEl = document.getElementById("sambutanNama");
+  if(namaEl) namaEl.textContent = sb.nama;
+  var jabEl = document.getElementById("sambutanJabatan");
+  if(jabEl) jabEl.textContent = sb.jabatan;
+  var heroNama = document.getElementById("heroWaliNama");
+  if(heroNama) heroNama.textContent = sb.nama;
+  var footNama = document.getElementById("footWaliNama");
+  if(footNama) footNama.textContent = "Wali Kelas: " + sb.nama;
+}
+
+function renderSambutanEditor(){
+  var wrap = document.getElementById("sambutanEditorWrap");
+  if(!wrap) return;
+  if(IS_FINAL_EXPORT){ wrap.innerHTML = ""; return; }
+
+  var sb = getSambutan();
+  var box = document.createElement("div");
+  box.className = "ed";
+  box.innerHTML = '<div class="ed-title"><span>Edit Sambutan & Foto Wali Kelas</span></div>'
+    +'<p>Unggah foto wali kelas dan sesuaikan teks sambutan di bawah ini, lalu klik <b>Simpan sambutan</b>.</p>';
+
+  var rowFoto = document.createElement("div");
+  rowFoto.className = "row";
+
+  var btnUpFoto = document.createElement("button");
+  btnUpFoto.type = "button";
+  btnUpFoto.className = "btn main kecil";
+  btnUpFoto.textContent = sb.foto ? "Ganti foto wali kelas" : "Unggah foto wali kelas";
+  btnUpFoto.addEventListener("click", function(){
+    pilihFile(false, function(files){
+      setStat("Memproses foto wali kelas...");
+      kecilDataUrl(files[0], 480, 0.72).then(function(dataUrl){
+        var cur = getSambutan();
+        cur.foto = dataUrl;
+        STATE.sambutan = cur;
+        renderSambutan();
+        renderSambutanEditor();
+        simpanDatabase("Foto wali kelas tersimpan ke database.", "meta");
+      }, function(){
+        setStat("Format foto tidak didukung.", true);
+      });
+    });
+  });
+  rowFoto.appendChild(btnUpFoto);
+
+  if(sb.foto){
+    var btnDelFoto = document.createElement("button");
+    btnDelFoto.type = "button";
+    btnDelFoto.className = "btn kecil danger";
+    btnDelFoto.textContent = "Lepas foto";
+    btnDelFoto.addEventListener("click", function(){
+      var cur = getSambutan();
+      cur.foto = null;
+      STATE.sambutan = cur;
+      renderSambutan();
+      renderSambutanEditor();
+      simpanDatabase("Foto wali kelas dilepas.", "meta");
+    });
+    rowFoto.appendChild(btnDelFoto);
+  }
+  box.appendChild(rowFoto);
+
+  var grid2 = document.createElement("div");
+  grid2.className = "ed-grid2";
+
+  var lblNama = document.createElement("label");
+  lblNama.className = "lbl";
+  lblNama.textContent = "Nama & Gelar Wali Kelas";
+  var inpNama = document.createElement("input");
+  inpNama.type = "text";
+  inpNama.value = sb.nama;
+  inpNama.addEventListener("input", function(){
+    var cur = getSambutan();
+    cur.nama = inpNama.value;
+    STATE.sambutan = cur;
+    renderSambutan();
+  });
+  lblNama.appendChild(inpNama);
+
+  var lblJab = document.createElement("label");
+  lblJab.className = "lbl";
+  lblJab.textContent = "Keterangan Jabatan / Tahun Ajaran";
+  var inpJab = document.createElement("input");
+  inpJab.type = "text";
+  inpJab.value = sb.jabatan;
+  inpJab.addEventListener("input", function(){
+    var cur = getSambutan();
+    cur.jabatan = inpJab.value;
+    STATE.sambutan = cur;
+    renderSambutan();
+  });
+  lblJab.appendChild(inpJab);
+
+  grid2.appendChild(lblNama);
+  grid2.appendChild(lblJab);
+  box.appendChild(grid2);
+
+  var lblTeks = document.createElement("label");
+  lblTeks.className = "lbl";
+  lblTeks.textContent = "Isi Sambutan (pisahkan paragraf dengan baris kosong)";
+  var txtIsi = document.createElement("textarea");
+  txtIsi.value = sb.teks;
+  txtIsi.addEventListener("input", function(){
+    var cur = getSambutan();
+    cur.teks = txtIsi.value;
+    STATE.sambutan = cur;
+    renderSambutan();
+  });
+  lblTeks.appendChild(txtIsi);
+  box.appendChild(lblTeks);
+
+  var rowAct = document.createElement("div");
+  rowAct.className = "row";
+
+  var btnSave = document.createElement("button");
+  btnSave.type = "button";
+  btnSave.className = "btn main kecil";
+  btnSave.textContent = "Simpan sambutan ke database";
+  btnSave.addEventListener("click", function(){
+    simpanDatabase("Sambutan wali kelas tersimpan ke database.", "meta");
+  });
+
+  var btnReset = document.createElement("button");
+  btnReset.type = "button";
+  btnReset.className = "btn kecil";
+  btnReset.textContent = "Reset teks bawaan";
+  btnReset.addEventListener("click", function(){
+    var cur = getSambutan();
+    cur.nama = DEFAULT_SAMBUTAN.nama;
+    cur.jabatan = DEFAULT_SAMBUTAN.jabatan;
+    cur.teks = DEFAULT_SAMBUTAN.teks;
+    STATE.sambutan = cur;
+    renderSambutan();
+    renderSambutanEditor();
+    simpanDatabase("Teks sambutan dikembalikan ke bawaan.", "meta");
+  });
+
+  var btnTutupEd = document.createElement("button");
+  btnTutupEd.type = "button";
+  btnTutupEd.className = "btn kecil";
+  btnTutupEd.textContent = "Tutup panel edit";
+  btnTutupEd.addEventListener("click", function(){
+    wrap.hidden = true;
+  });
+
+  var statSb = document.createElement("span");
+  statSb.className = "stat";
+  statSb.id = "statSambutan";
+
+  rowAct.appendChild(btnSave);
+  rowAct.appendChild(btnReset);
+  rowAct.appendChild(btnTutupEd);
+  rowAct.appendChild(statSb);
+  box.appendChild(rowAct);
+
+  wrap.innerHTML = "";
+  wrap.appendChild(box);
+}
+
+var btnToggleSb = document.getElementById("btnToggleSambutanEd");
+if(btnToggleSb){
+  btnToggleSb.addEventListener("click", function(){
+    var wrap = document.getElementById("sambutanEditorWrap");
+    if(!wrap) return;
+    wrap.hidden = !wrap.hidden;
+    if(!wrap.hidden) renderSambutanEditor();
+  });
+}
 
 function normalizeRoles(raw){
   if(!Array.isArray(raw) || !raw.length) return null;
@@ -451,7 +690,6 @@ function isValidImg(val){
   return typeof val === "string" && (val.startsWith("data:image/") || val.startsWith("http") || val.startsWith("./"));
 }
 
-/* Kompres Data URL agar tidak melebihi kuota 1MB dokumen Firestore */
 function recompressDataUrl(dataUrl, maxDim, quality){
   return new Promise(function(resolve){
     if(!isValidImg(dataUrl) || !dataUrl.startsWith("data:image/")){
@@ -555,7 +793,7 @@ function renderRoleEditor(){
   var daftarRoles = getRoles();
   var box = document.createElement("div");
   box.className = "ed";
-  box.innerHTML = '<div class="ed-title">Edit perangkat kelas</div><p>Atur jabatan dan tambah anggota per jabatan (misalnya Sekretaris 1 & 2, Bendahara 1 & 2), lalu simpan ke database.</p>';
+  box.innerHTML = '<div class="ed-title"><span>Edit perangkat kelas</span></div><p>Atur jabatan dan tambah anggota per jabatan (misalnya Sekretaris 1 & 2, Bendahara 1 & 2), lalu simpan ke database.</p>';
 
   var form = document.createElement("div");
   form.className = "role-form";
@@ -883,14 +1121,14 @@ document.addEventListener("keydown",function(e){
 });
 
 function setStat(t,err){
-  ["stat","pStat","statRole"].forEach(function(id){
+  ["stat","pStat","statRole","statSambutan"].forEach(function(id){
     var e=document.getElementById(id);
     if(e){e.textContent=t||"";e.className="stat"+(err?" err":"");}
   });
 }
 
-/* Penyimpanan terpecah multi-dokumen agar tidak melewati batas 1MB Firestore */
 function simpanDatabase(pesanSukses, bagian){
+  renderSambutan();
   bangunSiswa();
   renderRoles();
   renderRoleEditor();
@@ -904,6 +1142,7 @@ function simpanDatabase(pesanSukses, bagian){
 
   if(!bagian || bagian === "all" || bagian === "meta"){
     tasks.push(db.collection("pengaturan").doc("yearbook").set({
+      sambutan: STATE.sambutan || null,
       roles: STATE.roles || null,
       siswa: STATE.siswa || {},
       updatedAt: ts
@@ -953,6 +1192,7 @@ function muatDariDatabase(){
 
     if(docMeta.exists){
       var d = docMeta.data() || {};
+      STATE.sambutan = d.sambutan || null;
       STATE.roles = normalizeRoles(d.roles);
       STATE.siswa = d.siswa || {};
       if(d.foto && Object.keys(d.foto).length) STATE.foto = d.foto;
@@ -972,6 +1212,7 @@ function muatDariDatabase(){
       }
     }
 
+    renderSambutan();
     bangunSiswa();
     renderRoles();
     renderRoleEditor();
@@ -1163,6 +1404,8 @@ function eksporHtmlMandiri(){
   if(st) st.textContent = JSON.stringify(STATE).replace(/</g,"\\u003c");
   var authGate = clone.querySelector("#authGate"); if(authGate) authGate.remove();
   var mainWrap = clone.querySelector("#mainWrap"); if(mainWrap) mainWrap.removeAttribute("hidden");
+  var btnToggleSbClone = clone.querySelector("#btnToggleSambutanEd"); if(btnToggleSbClone) btnToggleSbClone.remove();
+  var sbEd = clone.querySelector("#sambutanEditorWrap"); if(sbEd) sbEd.remove();
   var roleEd = clone.querySelector("#roleEditorWrap"); if(roleEd) roleEd.innerHTML = "";
   var edbar = clone.querySelector("#edbar"); if(edbar) edbar.innerHTML = "";
   var rolesEl = clone.querySelector("#roles"); if(rolesEl) rolesEl.innerHTML = "";
@@ -1183,7 +1426,7 @@ function eksporHtmlMandiri(){
 function pengelola(){
   if(IS_FINAL_EXPORT)return;
   var bar=document.getElementById("edbar");
-  bar.innerHTML='<div class="ed"><div class="ed-title">Alat Pengelola (Tersinkron Cloud Firestore)</div>'
+  bar.innerHTML='<div class="ed"><div class="ed-title"><span>Alat Pengelola (Tersinkron Cloud Firestore)</span></div>'
     +'<p>1. Klik <b>Tarik dari database profil</b> untuk mengambil biodata & foto terbaru yang sudah diisi murid.<br>2. Klik <b>Unduh HTML final</b> untuk menghasilkan file buku tahunan mandiri tanpa panel editor.</p>'
     +'<div class="row">'
     +'<button type="button" class="btn main" id="syncDbBtn">Tarik dari database profil</button>'
@@ -1199,7 +1442,7 @@ function pengelola(){
   document.getElementById("expHtmlBtn").addEventListener("click",eksporHtmlMandiri);
   document.getElementById("resetBtn").addEventListener("click",function(){
     if(!confirm("Hapus seluruh data editor di Cloud Firestore dan kembalikan ke contoh?"))return;
-    STATE={foto:{},kg:{},siswa:{},roles:null};
+    STATE={foto:{},kg:{},siswa:{},roles:null,sambutan:null};
     simpanDatabase("Database editor berhasil direset.", "all");
   });
   document.getElementById("logoutBtn").addEventListener("click",function(){
@@ -1211,7 +1454,7 @@ function pengelola(){
   if(IS_FINAL_EXPORT){
     var ag = document.getElementById("authGate"); if(ag) ag.hidden = true;
     var mw = document.getElementById("mainWrap"); if(mw) mw.hidden = false;
-    bangunSiswa(); renderRoles(); render(); renderKg();
+    renderSambutan(); bangunSiswa(); renderRoles(); render(); renderKg();
     return;
   }
 
@@ -1239,7 +1482,7 @@ function pengelola(){
     document.getElementById("authGate").hidden = isGuru;
     document.getElementById("mainWrap").hidden = !isGuru;
     if(isGuru){
-      bangunSiswa(); renderRoles(); renderRoleEditor(); render(); renderKg(); pengelola();
+      renderSambutan(); bangunSiswa(); renderRoles(); renderRoleEditor(); render(); renderKg(); pengelola();
       muatDariDatabase();
     }
   });
