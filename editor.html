@@ -292,111 +292,6 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);background:var(--surfa
 }
 @media print{.noprint,.topbar{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-
-/* ================= FUTURISTIC YEARBOOK FRONTEND LAYER ================= */
-:root{
-  --bg:#070b18;--surface:#10182b;--surface-2:#151f36;--fg:#edf5ff;
-  --muted:#9aabc4;--accent:#63e8ff;--accent-2:#a78bfa;--accent-fg:#06111b;
-  --gold:#ffd78a;--ok:#55e6a5;--ok-bg:rgba(28,150,104,.18);--line:rgba(148,180,220,.18);
-  --hl:rgba(99,232,255,.10);--shadow-sm:0 8px 24px rgba(0,0,0,.18);
-  --shadow-md:0 18px 48px rgba(0,0,0,.28);--shadow-lg:0 26px 70px rgba(42,190,255,.18);
-}
-:root[data-theme="light"]{
-  --bg:#eef4fb;--surface:#fff;--surface-2:#f6f9ff;--fg:#142238;--muted:#61718a;
-  --accent:#087f9b;--accent-2:#7354cf;--accent-fg:#fff;--line:rgba(30,65,105,.14);
-  --hl:rgba(8,127,155,.08);--shadow-sm:0 8px 24px rgba(24,55,95,.06);
-  --shadow-md:0 18px 48px rgba(24,55,95,.12);--shadow-lg:0 26px 70px rgba(8,127,155,.14);
-}
-body{background:
- radial-gradient(ellipse at 8% 8%,rgba(44,113,190,.13),transparent 34rem),
- radial-gradient(ellipse at 92% 34%,rgba(130,82,214,.10),transparent 32rem),var(--bg);
- background-attachment:fixed}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.23;
- background-image:radial-gradient(rgba(139,203,255,.5) .7px,transparent .7px);
- background-size:34px 34px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
-.wrap{max-width:1240px}
-.topbar{background:rgba(7,12,27,.76);border-bottom:1px solid rgba(115,188,255,.2);box-shadow:0 8px 30px rgba(0,0,0,.12)}
-:root[data-theme="light"] .topbar{background:rgba(255,255,255,.82)}
-.brand{letter-spacing:-.025em}
-.brand-badge{border-radius:9px;background:linear-gradient(135deg,#42e8ff,#9878ff);color:#071323;box-shadow:0 0 22px rgba(66,232,255,.3)}
-.nav-links a{font-weight:600}
-.nav-links a:hover,.nav-links a.nav-active{color:var(--accent);background:var(--hl)}
-.theme-btn{border-color:rgba(99,232,255,.35);background:rgba(99,232,255,.07)}
-.cover{min-height:440px;padding-block:clamp(4rem,9vw,7.5rem);isolation:isolate;
- background:radial-gradient(circle at 78% 24%,rgba(88,220,255,.23),transparent 28%),
- radial-gradient(circle at 16% 90%,rgba(168,105,255,.25),transparent 34%),
- linear-gradient(125deg,#070d20 0%,#102b4a 48%,#211747 100%)}
-.cover::before{content:"";position:absolute;width:480px;height:480px;right:-100px;top:-210px;border:1px solid rgba(116,226,255,.25);border-radius:50%;
- box-shadow:0 0 0 35px rgba(116,226,255,.035),0 0 0 75px rgba(116,226,255,.025),inset 0 0 70px rgba(116,226,255,.08);animation:orbitFloat 12s ease-in-out infinite alternate}
-.cover::after{background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(90deg,transparent,black)}
-@keyframes orbitFloat{to{transform:translate(-28px,28px) rotate(12deg)}}
-.cover .wrap{gap:1.7rem}
-.kicker{color:#8df3ff;border-color:rgba(141,243,255,.32);background:rgba(80,210,255,.09);letter-spacing:.14em}
-h1{max-width:900px;text-shadow:0 8px 38px rgba(85,210,255,.18)}
-.sub{color:#c2d8f5;max-width:62ch}
-.hero-cards{max-width:920px;gap:1rem}
-.hcard{border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.045));border:1px solid rgba(164,220,255,.22);box-shadow:inset 0 1px rgba(255,255,255,.1),0 12px 34px rgba(0,0,0,.12);transition:transform .25s,border-color .25s,background .25s}
-.hcard:hover{transform:translateY(-5px);border-color:rgba(99,232,255,.6);background:rgba(99,232,255,.12)}
-.hcard span{color:#9dc9e8}.hcard strong{font-size:1.28rem}
-section{padding-top:4rem;scroll-margin-top:82px}
-.sec-head{margin-bottom:1.45rem}
-h2{letter-spacing:-.035em}
-h2::before{width:4px;background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 0 14px color-mix(in srgb,var(--accent) 50%,transparent)}
-.note{color:var(--muted)}
-.sambutan,.roles li,.bar,.act,.ed,.auth-box,.prof-box{background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--surface) 90%,var(--accent) 10%));border-color:var(--line);box-shadow:var(--shadow-sm)}
-.sambutan{border-radius:22px}
-.wali-photo{border:2px solid rgba(99,232,255,.5);box-shadow:0 0 0 6px rgba(99,232,255,.07),var(--shadow-md)}
-.wali-tag,.pill{background:var(--hl);color:var(--accent)}
-.roles li{border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:16px;padding:1.2rem;transition:transform .25s,border-color .25s,box-shadow .25s}
-.roles li:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:var(--shadow-md)}
-.bar{border-radius:16px;backdrop-filter:blur(14px)}
-input[type=text],input[type=search],select,textarea{background:var(--surface-2);border-color:var(--line)}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
-.chip{border-color:var(--line);background:var(--surface-2)}
-.chip.active{background:linear-gradient(120deg,var(--accent),var(--accent-2));border-color:transparent;color:#071323;box-shadow:0 5px 18px color-mix(in srgb,var(--accent) 20%,transparent)}
-.grid{gap:1.25rem}
-.card{border-radius:17px;padding:.62rem .62rem 1rem;background:linear-gradient(160deg,var(--surface),var(--surface-2));border-color:var(--line);box-shadow:var(--shadow-sm)}
-.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s;background:linear-gradient(135deg,rgba(99,232,255,.12),transparent 45%,rgba(167,139,250,.1))}
-.card:hover{transform:translateY(-7px) scale(1.012);border-color:rgba(99,232,255,.58);box-shadow:var(--shadow-lg)}
-.card:hover::after{opacity:1}
-.photo{border-radius:12px;background:linear-gradient(135deg,#162b4c,#30214f)}
-.badge-no{background:rgba(5,12,28,.82);border:1px solid rgba(255,255,255,.16)}
-.badge-slides{background:linear-gradient(120deg,#0c9db2,#7559d6)}
-.name{letter-spacing:-.02em}
-.pg{background:rgba(4,8,20,.88)}
-.pg-top{background:rgba(16,24,43,.88);backdrop-filter:blur(16px);border-color:rgba(145,200,255,.2)}
-.prof-box{border-radius:22px}
-.prof .big{border-radius:16px;border-color:rgba(99,232,255,.25)}
-.slide-nav{width:40px;height:40px;background:rgba(4,12,27,.76);border-color:rgba(255,255,255,.28)}
-.btn,.pg button{border-radius:11px}
-.btn.main{background:linear-gradient(120deg,#27cde5,#8b70f5);color:#071323;box-shadow:0 7px 24px rgba(65,190,235,.2)}
-.btn.main:hover{filter:brightness(1.12);color:#071323}
-.btn:not(.main):hover,.pg button:hover{background:var(--hl)}
-.act{border-radius:17px;overflow:hidden}
-.act:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.shot{border-radius:10px}
-.ed{border-style:solid;border-width:1px;border-color:color-mix(in srgb,var(--accent) 38%,var(--line));border-radius:18px}
-footer{background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(12px);border-color:var(--line)}
-/* entrance animation */
-.reveal-ready .reveal{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.75,.25,1)}
-.reveal-ready .reveal.is-visible{opacity:1;transform:none}
-.reading-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;background:linear-gradient(90deg,#42e8ff,#9d79ff);box-shadow:0 0 14px rgba(66,232,255,.65)}
-.back-top{position:fixed;right:22px;bottom:22px;z-index:18;width:46px;height:46px;border-radius:50%;border:1px solid rgba(99,232,255,.4);background:rgba(16,29,52,.88);color:#8df3ff;font-size:1.2rem;box-shadow:0 8px 28px rgba(0,0,0,.28);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(10px);transition:.25s}
-.back-top.visible{opacity:1;pointer-events:auto;transform:none}
-.back-top:hover{background:#42cfe8;color:#06111b}
-@media(max-width:680px){
- .topbar-in{align-items:flex-start;padding-block:.6rem;flex-direction:column}
- .nav-links{width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.15rem}
- .nav-links a{white-space:nowrap;padding:.35rem .65rem;font-size:.8rem}
- .theme-btn{flex:none}
- .cover{min-height:390px;padding-block:4rem}
- .hero-cards{grid-template-columns:1fr 1fr}
- .hcard:last-child{grid-column:1/-1}
- section{padding-top:3rem}
-}
-@media(max-width:420px){.hero-cards{grid-template-columns:1fr}.hcard:last-child{grid-column:auto}.grid{gap:.65rem}.card{padding:.45rem .45rem .75rem}}
-@media(prefers-reduced-motion:reduce){.reveal-ready .reveal{opacity:1;transform:none}.cover::before{animation:none}}
-
 </style>
 </head>
 <body>
@@ -683,7 +578,7 @@ function renderSambutanEditor(){
   var box = document.createElement("div");
   box.className = "ed";
   box.innerHTML = '<div class="ed-title"><span>Edit Sambutan & Foto Wali Kelas</span></div>'
-    +'<p>Unggah foto wali kelas dan sesuaikan teks sambutan di bawah ini, lalu klik <b>Simpan sambutan</b>.</p>';
+    +'<p>Unggah foto wali kelas (format <b>PNG, JPG, atau JPEG</b>) dan sesuaikan teks sambutan di bawah ini, lalu klik <b>Simpan sambutan</b>.</p>';
 
   var rowFoto = document.createElement("div");
   rowFoto.className = "row";
@@ -703,7 +598,7 @@ function renderSambutanEditor(){
         renderSambutanEditor();
         simpanDatabase("Foto wali kelas tersimpan ke database.", "meta");
       }, function(){
-        setStat("Format foto tidak didukung.", true);
+        setStat("Format foto tidak didukung. Gunakan PNG, JPG, atau JPEG.", true);
       });
     });
   });
@@ -880,7 +775,6 @@ function recompressDataUrl(dataUrl, maxDim, quality){
   });
 }
 
-/* Ambil array 3 slot foto siswa [slide0, slide1, slide2] */
 function getSiswaSlides(no){
   var f1 = isValidImg(STATE.foto[no]) ? STATE.foto[no] : null;
   var ex = Array.isArray(STATE.fotoExtra[no]) ? STATE.fotoExtra[no] : [];
@@ -1229,7 +1123,6 @@ function renderKg(){
   });
 }
 
-/* Editor Galeri Kegiatan */
 function renderKgEditor(){
   var wrap = document.getElementById("kgEditorWrap");
   if(!wrap) return;
@@ -1239,7 +1132,7 @@ function renderKgEditor(){
   var box = document.createElement("div");
   box.className = "ed";
   box.innerHTML = '<div class="ed-title"><span>Edit Daftar & Detail Galeri Kegiatan</span></div>'
-    +'<p>Ubah judul kegiatan, waktu pelaksanaan, status, deskripsi, atau tambah agenda baru, lalu klik <b>Simpan galeri kegiatan</b>.</p>';
+    +'<p>Ubah judul kegiatan, waktu pelaksanaan, status, deskripsi, atau unggah foto (format <b>PNG, JPG, atau JPEG</b>), lalu klik <b>Simpan galeri kegiatan</b>.</p>';
 
   var form = document.createElement("div");
   form.className = "role-form";
@@ -1345,7 +1238,6 @@ function renderKgEditor(){
     btnDelKg.addEventListener("click", function(){
       var cur = getKegiatanList();
       cur.splice(idxKg, 1);
-      // Geser indeks foto kegiatan STATE.kg agar tetap sinkron
       var newKgMap = {};
       for(var m=0; m<cur.length; m++){
         var oldIdx = m < idxKg ? m : m + 1;
@@ -1462,7 +1354,6 @@ function burstConfetti(){
   }
 }
 
-/* Render Carousel 3 Slide pada Profil Siswa */
 function renderSlideSiswa(){
   var s = tampil[idx];
   if(!s) return;
@@ -1546,6 +1437,12 @@ function renderSlideSiswa(){
         ed.appendChild(dBtn);
       }
 
+      var hint = document.createElement("span");
+      hint.className = "note";
+      hint.style.fontSize = ".78rem";
+      hint.textContent = "Format didukung: PNG, JPG, JPEG";
+      ed.appendChild(hint);
+
       var st = document.createElement("span");
       st.className = "stat";
       st.id = "pStat";
@@ -1562,7 +1459,6 @@ function geserSlideFoto(delta){
 document.getElementById("slidePrev").addEventListener("click", function(){ geserSlideFoto(-1); });
 document.getElementById("slideNext").addEventListener("click", function(){ geserSlideFoto(1); });
 
-/* Swipe layar sentuh untuk carousel foto profil siswa */
 (function initSwipeFoto(){
   var box = document.getElementById("pFoto");
   if(!box) return;
@@ -1790,17 +1686,47 @@ function tarikDariKoleksiProfil(){
   });
 }
 
+/* Validasi ketat hanya menerima PNG, JPG, dan JPEG */
+function isAllowedPhotoFile(file){
+  if(!file) return false;
+  var mimeOk = file.type === "image/png" || file.type === "image/jpeg";
+  var extOk = /\.(png|jpe?g)$/i.test(file.name || "");
+  return mimeOk || extOk;
+}
+
+function filterFotoValid(fileList){
+  var valid = [];
+  var ditolak = 0;
+  [].slice.call(fileList || []).forEach(function(f){
+    if(isAllowedPhotoFile(f)) valid.push(f);
+    else ditolak++;
+  });
+  return {valid: valid, ditolak: ditolak};
+}
+
 function pilihFile(banyak,fn){
   var inp=document.createElement("input");
-  inp.type="file";inp.accept="image/*";inp.multiple=!!banyak;
+  inp.type="file";
+  inp.accept=".png,.jpg,.jpeg,image/png,image/jpeg";
+  inp.multiple=!!banyak;
   inp.addEventListener("change",function(){
-    var fs=[].slice.call(inp.files||[]);
-    if(fs.length)fn(fs);
+    var cek = filterFotoValid(inp.files);
+    if(!cek.valid.length){
+      setStat("Format file tidak didukung. Gunakan foto berformat PNG, JPG, atau JPEG.", true);
+      return;
+    }
+    if(cek.ditolak > 0){
+      setStat(cek.ditolak + " file dilewati karena bukan PNG, JPG, atau JPEG.", true);
+    }
+    fn(cek.valid);
   });
   inp.click();
 }
 
 function kecilDataUrl(file, maxDim, quality){
+  if(!isAllowedPhotoFile(file)){
+    return Promise.reject(new Error("Format file harus PNG, JPG, atau JPEG."));
+  }
   return createImageBitmap(file).then(function(bm){
     var sc=Math.min(1,(maxDim||360)/Math.max(bm.width,bm.height));
     var w=Math.round(bm.width*sc),h=Math.round(bm.height*sc);
@@ -1819,7 +1745,7 @@ function gantiFotoSlide(no, slideIdx, file){
       if(!pg.hidden) renderSlideSiswa();
     });
   }, function(){
-    setStat("Format foto tidak didukung.", true);
+    setStat("Format foto tidak didukung. Gunakan PNG, JPG, atau JPEG.", true);
   });
 }
 
@@ -1954,7 +1880,7 @@ function pengelola(){
   if(IS_FINAL_EXPORT)return;
   var bar=document.getElementById("edbar");
   bar.innerHTML='<div class="ed"><div class="ed-title"><span>Alat Pengelola (Tersinkron Cloud Firestore)</span></div>'
-    +'<p>1. Klik <b>Tarik dari database profil</b> untuk mengambil biodata & foto terbaru yang sudah diisi murid.<br>2. Klik kartu siswa mana pun untuk mengunggah hingga <b>3 foto (3 slide)</b> per siswa.<br>3. Klik <b>Unduh HTML final</b> untuk menghasilkan file buku tahunan mandiri tanpa panel editor.</p>'
+    +'<p>1. Klik <b>Tarik dari database profil</b> untuk mengambil biodata & foto terbaru yang sudah diisi murid.<br>2. Klik kartu siswa mana pun untuk mengunggah hingga <b>3 foto (3 slide)</b> per siswa (format <b>PNG, JPG, JPEG</b>).<br>3. Klik <b>Unduh HTML final</b> untuk menghasilkan file buku tahunan mandiri tanpa panel editor.</p>'
     +'<div class="row">'
     +'<button type="button" class="btn main" id="syncDbBtn">Tarik dari database profil</button>'
     +'<button type="button" class="btn" id="impBtn">Impor file (.json)</button>'
@@ -2013,51 +1939,6 @@ function pengelola(){
       muatDariDatabase();
     }
   });
-})();
-</script>
-
-
-<script id="frontend-enhancements">
-(function(){
-  var root=document.documentElement;
-  var progress=document.createElement("div");
-  progress.className="reading-progress";
-  document.body.appendChild(progress);
-  var topBtn=document.createElement("button");
-  topBtn.className="back-top";
-  topBtn.type="button";
-  topBtn.setAttribute("aria-label","Kembali ke atas");
-  topBtn.textContent="↑";
-  document.body.appendChild(topBtn);
-  topBtn.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});
-  function onScroll(){
-    var max=document.documentElement.scrollHeight-window.innerHeight;
-    progress.style.width=(max>0?(window.scrollY/max*100):0)+"%";
-    topBtn.classList.toggle("visible",window.scrollY>480);
-    var sections=[].slice.call(document.querySelectorAll("main section[id]"));
-    var current="";
-    sections.forEach(function(sec){if(sec.getBoundingClientRect().top<150)current=sec.id;});
-    document.querySelectorAll(".nav-links a[href^='#']").forEach(function(a){
-      a.classList.toggle("nav-active",a.getAttribute("href")==="#"+current);
-    });
-  }
-  window.addEventListener("scroll",onScroll,{passive:true});onScroll();
-  if(!("IntersectionObserver" in window))return;
-  root.classList.add("reveal-ready");
-  var observer=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}
-    });
-  },{threshold:.08,rootMargin:"0px 0px -35px 0px"});
-  function observeNew(){
-    document.querySelectorAll("main section,.sambutan,.roles li,.card,.act,.sec-head").forEach(function(el){
-      if(!el.classList.contains("reveal")){el.classList.add("reveal");observer.observe(el);}
-    });
-  }
-  observeNew();
-  var mo=new MutationObserver(function(){observeNew();});
-  var main=document.getElementById("mainWrap");
-  if(main)mo.observe(main,{childList:true,subtree:true});
 })();
 </script>
 
