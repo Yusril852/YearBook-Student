@@ -463,21 +463,21 @@ var DEFAULT_SAMBUTAN = {
   foto: null
 };
 var DEFAULT_KEGIATAN = [
-  {judul:"Masa Pengenalan Lingkungan Sekolah (MPLS)",waktu:"Juli 2026",status:"lalu",foto:3,
+  {uid:"kg_def_0",judul:"Masa Pengenalan Lingkungan Sekolah (MPLS)",waktu:"Juli 2026",status:"lalu",foto:3,
    ket:"Hari pertama 7F mengenal sekolah, guru, dan teman sekelas baru."},
-  {judul:"Lomba HUT RI ke-81",waktu:"Agustus 2026",status:"lalu",foto:3,
+  {uid:"kg_def_1",judul:"Lomba HUT RI ke-81",waktu:"Agustus 2026",status:"lalu",foto:3,
    ket:"Lomba antarkelas dalam rangka peringatan Hari Kemerdekaan."},
-  {judul:"Peringatan Hari Sumpah Pemuda",waktu:"28 Oktober 2026",status:"lalu",foto:3,
+  {uid:"kg_def_2",judul:"Peringatan Hari Sumpah Pemuda",waktu:"28 Oktober 2026",status:"lalu",foto:3,
    ket:"Upacara dan kegiatan kelas untuk memperingati Sumpah Pemuda."},
-  {judul:"Hari Guru Nasional",waktu:"25 November 2026",status:"nanti",foto:0,
+  {uid:"kg_def_3",judul:"Hari Guru Nasional",waktu:"25 November 2026",status:"nanti",foto:0,
    ket:"Kelas 7F menyiapkan ucapan terima kasih untuk para guru."},
-  {judul:"Asesmen akhir semester 1",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
+  {uid:"kg_def_4",judul:"Asesmen akhir semester 1",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
    ket:"Penutup pembelajaran semester 1 untuk semua mata pelajaran."},
-  {judul:"Class meeting",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
+  {uid:"kg_def_5",judul:"Class meeting",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
    ket:"Pertandingan dan lomba antarkelas setelah asesmen selesai."},
-  {judul:"Pembagian rapor semester 1",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
+  {uid:"kg_def_6",judul:"Pembagian rapor semester 1",waktu:"Desember 2026, tanggal menyusul",status:"nanti",foto:0,
    ket:"Wali kelas membagikan rapor dan foto bersama kelas 7F."},
-  {judul:"Kegiatan semester 2",waktu:"Januari sampai Juni 2027",status:"nanti",foto:0,
+  {uid:"kg_def_7",judul:"Kegiatan semester 2",waktu:"Januari sampai Juni 2027",status:"nanti",foto:0,
    ket:"Ruang untuk kegiatan semester 2, misalnya Hari Kartini, porseni, dan perpisahan kelas."}
 ];
 
@@ -485,6 +485,26 @@ var db = null;
 var auth = null;
 var filterMode = "all";
 var fotoSlideIdx = 0;
+var deletedKgUids = {};
+
+function buatUidKg(){
+  return "kg_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+}
+
+function normalizeKegiatanList(raw){
+  if(!Array.isArray(raw) || !raw.length) return null;
+  return raw.map(function(g, idx){
+    var item = (g && typeof g === "object") ? g : {};
+    return {
+      uid: (typeof item.uid === "string" && item.uid.trim()) ? item.uid.trim() : ("kg_def_" + idx),
+      judul: String(item.judul || ""),
+      waktu: String(item.waktu || ""),
+      status: item.status === "lalu" ? "lalu" : "nanti",
+      foto: typeof item.foto === "number" ? item.foto : 0,
+      ket: String(item.ket || "")
+    };
+  });
+}
 
 (function initTheme(){
   var btn = document.getElementById("themeToggle");
@@ -510,7 +530,7 @@ var STATE = (function(){
     base.foto = s.foto || {};
     base.fotoExtra = s.fotoExtra || {};
     base.kg = s.kg || {};
-    base.kegiatanList = Array.isArray(s.kegiatanList) && s.kegiatanList.length ? s.kegiatanList : null;
+    base.kegiatanList = normalizeKegiatanList(s.kegiatanList);
     base.siswa = s.siswa || {};
     base.roles = normalizeRoles(s.roles);
     base.sambutan = s.sambutan || null;
@@ -521,7 +541,7 @@ var STATE = (function(){
 function getKegiatanList(){
   return (Array.isArray(STATE.kegiatanList) && STATE.kegiatanList.length)
     ? STATE.kegiatanList
-    : DEFAULT_KEGIATAN.map(function(g){return {judul:g.judul, waktu:g.waktu, status:g.status, foto:g.foto, ket:g.ket};});
+    : DEFAULT_KEGIATAN.map(function(g){return {uid:g.uid, judul:g.judul, waktu:g.waktu, status:g.status, foto:g.foto, ket:g.ket};});
 }
 
 function getSambutan(){
@@ -1081,7 +1101,20 @@ function shotSvg(k,j){
    +'<path d="M0 200V140l70-45 60 40 55-30 115 60v35z" fill="hsl('+h+',30%,42%)"/>'
    +'<text x="150" y="105" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="15" font-weight="600" fill="hsl('+h+',40%,95%)">Foto menyusul</text></svg>';
 }
-function imgsKg(k){return (STATE.kg[k]||[]).filter(isValidImg);}
+
+function getKgKey(g, idxFallback){
+  return (g && g.uid) ? g.uid : String(idxFallback);
+}
+
+function imgsKgByItem(g, idxFallback){
+  var key = getKgKey(g, idxFallback);
+  var arr = STATE.kg[key];
+  if(!Array.isArray(arr) && Array.isArray(STATE.kg[idxFallback])){
+    arr = STATE.kg[idxFallback];
+  }
+  return (arr || []).filter(isValidImg);
+}
+
 function renderKg(){
   var lalu=document.getElementById("actsLalu"),nanti=document.getElementById("actsNanti");
   lalu.textContent="";nanti.textContent="";
@@ -1090,7 +1123,8 @@ function renderKg(){
   if(hKg) hKg.textContent = daftarKg.length + " Agenda Semester";
 
   daftarKg.forEach(function(g,k){
-    var imgs=imgsKg(k),status=imgs.length?"lalu":(g.status||"nanti");
+    var key = getKgKey(g, k);
+    var imgs=imgsKgByItem(g, k),status=imgs.length?"lalu":(g.status||"nanti");
     var el=document.createElement("article");el.className="act";
     var shots="";
     if(imgs.length){
@@ -1108,7 +1142,7 @@ function renderKg(){
       shots='<div class="soon">Foto akan ditambahkan setelah kegiatan berlangsung.</div>';
     }
     el.innerHTML=shots+'<h4>'+esc(g.judul)+'</h4><div class="meta"><span class="pill'+(status==="lalu"?'':' soonp')+'">'+(status==="lalu"?"Sudah berlangsung":"Akan datang")+'</span><span>'+esc(g.waktu)+'</span></div><p>'+esc(g.ket)+'</p>'
-      +(!IS_FINAL_EXPORT?'<div><button type="button" class="btn kecil" data-tambah="'+k+'">+ Tambah foto</button></div>':'');
+      +(!IS_FINAL_EXPORT?'<div><button type="button" class="btn kecil" data-tambah="'+esc(key)+'">+ Tambah foto</button></div>':'');
     (status==="lalu"?lalu:nanti).appendChild(el);
     el.addEventListener("click",function(e){
       var t=e.target;
@@ -1116,9 +1150,9 @@ function renderKg(){
       var z=t.closest("[data-zoom]");
       if(z){bukaZoom(imgs[parseInt(z.getAttribute("data-zoom"),10)]);return;}
       var l=t.closest("[data-lepas]");
-      if(l){lepasKg(k,parseInt(l.getAttribute("data-lepas"),10));return;}
+      if(l){lepasKg(key,parseInt(l.getAttribute("data-lepas"),10));return;}
       var a=t.closest("[data-tambah]");
-      if(a){pilihFile(true,function(files){tambahKg(k,files)});}
+      if(a){pilihFile(true,function(files){tambahKg(key,files)});}
     });
   });
 }
@@ -1131,13 +1165,14 @@ function renderKgEditor(){
   var daftarKg = getKegiatanList();
   var box = document.createElement("div");
   box.className = "ed";
-  box.innerHTML = '<div class="ed-title"><span>Edit Daftar & Detail Galeri Kegiatan</span></div>'
-    +'<p>Ubah judul kegiatan, waktu pelaksanaan, status, deskripsi, atau unggah foto (format <b>PNG, JPG, atau JPEG</b>), lalu klik <b>Simpan galeri kegiatan</b>.</p>';
+  box.innerHTML = '<div class="ed-title"><span>Edit Daftar & Detail Galeri Kegiatan (Total: ' + daftarKg.length + ' Agenda · Tanpa Batas)</span></div>'
+    +'<p>Tambah agenda sebanyak yang dibutuhkan, ubah judul, waktu, status, deskripsi, atau unggah foto (format <b>PNG, JPG, atau JPEG</b>), lalu klik <b>Simpan galeri kegiatan ke database</b>.</p>';
 
   var form = document.createElement("div");
   form.className = "role-form";
 
   daftarKg.forEach(function(g, idxKg){
+    var key = getKgKey(g, idxKg);
     var cardEd = document.createElement("div");
     cardEd.className = "role-card-ed";
 
@@ -1221,10 +1256,10 @@ function renderKgEditor(){
     var btnUpKg = document.createElement("button");
     btnUpKg.type = "button";
     btnUpKg.className = "btn kecil";
-    btnUpKg.textContent = "+ Unggah foto kegiatan ini (" + imgsKg(idxKg).length + ")";
+    btnUpKg.textContent = "+ Unggah foto kegiatan ini (" + imgsKgByItem(g, idxKg).length + ")";
     btnUpKg.addEventListener("click", function(){
       pilihFile(true, function(files){
-        tambahKg(idxKg, files).then(function(){
+        tambahKg(key, files).then(function(){
           renderKgEditor();
         });
       });
@@ -1237,14 +1272,12 @@ function renderKgEditor(){
     btnDelKg.disabled = daftarKg.length <= 1;
     btnDelKg.addEventListener("click", function(){
       var cur = getKegiatanList();
-      cur.splice(idxKg, 1);
-      var newKgMap = {};
-      for(var m=0; m<cur.length; m++){
-        var oldIdx = m < idxKg ? m : m + 1;
-        if(STATE.kg[oldIdx]) newKgMap[m] = STATE.kg[oldIdx];
+      var removed = cur.splice(idxKg, 1)[0];
+      if(removed && removed.uid){
+        delete STATE.kg[removed.uid];
+        deletedKgUids[removed.uid] = true;
       }
       STATE.kegiatanList = cur;
-      STATE.kg = newKgMap;
       renderKg();
       renderKgEditor();
     });
@@ -1265,7 +1298,7 @@ function renderKgEditor(){
   btnSaveKg.className = "btn main kecil";
   btnSaveKg.textContent = "Simpan galeri kegiatan ke database";
   btnSaveKg.addEventListener("click", function(){
-    simpanDatabase("Daftar galeri kegiatan tersimpan ke database.", "all");
+    simpanDatabase("Daftar galeri kegiatan (" + getKegiatanList().length + " agenda) tersimpan ke database.", "all");
   });
 
   var btnAddKg = document.createElement("button");
@@ -1275,7 +1308,8 @@ function renderKgEditor(){
   btnAddKg.addEventListener("click", function(){
     var cur = getKegiatanList();
     cur.push({
-      judul: "Kegiatan Kelas 7F Baru",
+      uid: buatUidKg(),
+      judul: "Kegiatan Kelas 7F #" + (cur.length + 1),
       waktu: "Semester 2 · 2027",
       status: "nanti",
       foto: 0,
@@ -1291,6 +1325,13 @@ function renderKgEditor(){
   btnResetKg.className = "btn kecil";
   btnResetKg.textContent = "Reset daftar bawaan";
   btnResetKg.addEventListener("click", function(){
+    var cur = getKegiatanList();
+    cur.forEach(function(item){
+      if(item && item.uid && !item.uid.startsWith("kg_def_")){
+        delete STATE.kg[item.uid];
+        deletedKgUids[item.uid] = true;
+      }
+    });
     STATE.kegiatanList = null;
     renderKg();
     renderKgEditor();
@@ -1541,35 +1582,41 @@ function simpanDatabase(pesanSukses, bagian){
   var tasks = [];
   var ts = firebase.firestore.FieldValue.serverTimestamp();
   var daftarKg = getKegiatanList();
+  var col = db.collection("pengaturan");
 
   if(!bagian || bagian === "all" || bagian === "meta"){
-    tasks.push(db.collection("pengaturan").doc("yearbook").set({
+    tasks.push(col.doc("yearbook").set({
       sambutan: STATE.sambutan || null,
       roles: STATE.roles || null,
       kegiatanList: STATE.kegiatanList || null,
       siswa: STATE.siswa || {},
       updatedAt: ts
     }));
+    Object.keys(deletedKgUids).forEach(function(oldUid){
+      tasks.push(col.doc("kg_item_" + oldUid).delete().catch(function(){}));
+    });
+    deletedKgUids = {};
   }
   if(!bagian || bagian === "all" || bagian === "foto"){
-    tasks.push(db.collection("pengaturan").doc("foto_siswa").set({
+    tasks.push(col.doc("foto_siswa").set({
       foto: STATE.foto || {},
       updatedAt: ts
     }));
   }
   if(!bagian || bagian === "all" || bagian === "fotoExtra"){
-    tasks.push(db.collection("pengaturan").doc("foto_siswa_extra").set({
+    tasks.push(col.doc("foto_siswa_extra").set({
       fotoExtra: STATE.fotoExtra || {},
       updatedAt: ts
     }));
   }
   if(!bagian || bagian === "all" || bagian === "kg"){
-    for(var k=0; k<daftarKg.length; k++){
-      tasks.push(db.collection("pengaturan").doc("kg_" + k).set({
-        imgs: STATE.kg[k] || [],
+    daftarKg.forEach(function(g, k){
+      var key = getKgKey(g, k);
+      tasks.push(col.doc("kg_item_" + key).set({
+        imgs: STATE.kg[key] || [],
         updatedAt: ts
       }));
-    }
+    });
   }
 
   return Promise.all(tasks).then(function(){
@@ -1586,16 +1633,12 @@ function muatDariDatabase(){
   if(!db) return;
   setStat("Memuat data dari database...");
   var col = db.collection("pengaturan");
-  var reads = [
+
+  Promise.all([
     col.doc("yearbook").get(),
     col.doc("foto_siswa").get(),
     col.doc("foto_siswa_extra").get()
-  ];
-  for(var k=0; k<20; k++){
-    reads.push(col.doc("kg_" + k).get());
-  }
-
-  Promise.all(reads).then(function(snaps){
+  ]).then(function(snaps){
     var docMeta = snaps[0];
     var docFoto = snaps[1];
     var docFotoEx = snaps[2];
@@ -1605,7 +1648,7 @@ function muatDariDatabase(){
       var d = docMeta.data() || {};
       STATE.sambutan = d.sambutan || null;
       STATE.roles = normalizeRoles(d.roles);
-      STATE.kegiatanList = Array.isArray(d.kegiatanList) && d.kegiatanList.length ? d.kegiatanList : null;
+      STATE.kegiatanList = normalizeKegiatanList(d.kegiatanList);
       STATE.siswa = d.siswa || {};
       if(d.foto && Object.keys(d.foto).length) STATE.foto = d.foto;
       if(d.kg && Object.keys(d.kg).length) STATE.kg = d.kg;
@@ -1621,21 +1664,37 @@ function muatDariDatabase(){
       if(dfe.fotoExtra) STATE.fotoExtra = dfe.fotoExtra;
       adaData = true;
     }
-    for(var k=0; k<20; k++){
-      var dk = snaps[3 + k];
-      if(dk && dk.exists){
-        STATE.kg[k] = (dk.data() && dk.data().imgs) || [];
-        adaData = true;
-      }
-    }
 
-    renderSambutan();
-    bangunSiswa();
-    renderRoles();
-    renderRoleEditor();
-    render();
-    renderKg();
-    setStat(adaData ? "Data editor dimuat dari database." : "Database editor siap digunakan.");
+    var daftarKg = getKegiatanList();
+    var kgReads = [];
+    daftarKg.forEach(function(g, k){
+      var key = getKgKey(g, k);
+      kgReads.push(
+        col.doc("kg_item_" + key).get().then(function(docKgNew){
+          if(docKgNew.exists){
+            STATE.kg[key] = (docKgNew.data() && docKgNew.data().imgs) || [];
+            adaData = true;
+          }else{
+            return col.doc("kg_" + k).get().then(function(docKgOld){
+              if(docKgOld.exists){
+                STATE.kg[key] = (docKgOld.data() && docKgOld.data().imgs) || [];
+                adaData = true;
+              }
+            });
+          }
+        })
+      );
+    });
+
+    return Promise.all(kgReads).then(function(){
+      renderSambutan();
+      bangunSiswa();
+      renderRoles();
+      renderRoleEditor();
+      render();
+      renderKg();
+      setStat(adaData ? "Data editor dimuat dari database (" + daftarKg.length + " agenda)." : "Database editor siap digunakan.");
+    });
   }).catch(function(e){
     setStat("Gagal memuat dari database (" + (e && e.code ? e.code : "error") + ").", true);
   });
@@ -1686,7 +1745,6 @@ function tarikDariKoleksiProfil(){
   });
 }
 
-/* Validasi ketat hanya menerima PNG, JPG, dan JPEG */
 function isAllowedPhotoFile(file){
   if(!file) return false;
   var mimeOk = file.type === "image/png" || file.type === "image/jpeg";
@@ -1749,8 +1807,8 @@ function gantiFotoSlide(no, slideIdx, file){
   });
 }
 
-function tambahKg(k,files){
-  var imgs=imgsKg(k).slice();
+function tambahKg(key,files){
+  var imgs=(STATE.kg[key]||[]).filter(isValidImg).slice();
   setStat("Memproses foto...");
   var chain=Promise.resolve();
   files.forEach(function(f){
@@ -1759,10 +1817,10 @@ function tambahKg(k,files){
     });
   });
   return chain.then(function(){
-    STATE.kg[k]=imgs;
+    STATE.kg[key]=imgs;
     if(!db || IS_FINAL_EXPORT) return;
     setStat("Menyimpan foto kegiatan...");
-    return db.collection("pengaturan").doc("kg_" + k).set({
+    return db.collection("pengaturan").doc("kg_item_" + key).set({
       imgs: imgs,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
@@ -1774,11 +1832,12 @@ function tambahKg(k,files){
   });
 }
 
-function lepasKg(k,j){
-  var imgs=imgsKg(k).slice();imgs.splice(j,1);
-  STATE.kg[k]=imgs;
+function lepasKg(key,j){
+  var imgs=(STATE.kg[key]||[]).filter(isValidImg).slice();
+  imgs.splice(j,1);
+  STATE.kg[key]=imgs;
   if(!db || IS_FINAL_EXPORT) return;
-  db.collection("pengaturan").doc("kg_" + k).set({
+  db.collection("pengaturan").doc("kg_item_" + key).set({
     imgs: imgs,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(function(){
@@ -1895,6 +1954,9 @@ function pengelola(){
   document.getElementById("expHtmlBtn").addEventListener("click",eksporHtmlMandiri);
   document.getElementById("resetBtn").addEventListener("click",function(){
     if(!confirm("Hapus seluruh data editor di Cloud Firestore dan kembalikan ke contoh?"))return;
+    getKegiatanList().forEach(function(item){
+      if(item && item.uid) deletedKgUids[item.uid] = true;
+    });
     STATE={foto:{},fotoExtra:{},kg:{},kegiatanList:null,siswa:{},roles:null,sambutan:null};
     simpanDatabase("Database editor berhasil direset.", "all");
   });
